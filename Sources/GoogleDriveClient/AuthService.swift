@@ -57,7 +57,7 @@ extension AuthService: DependencyKey {
       components.queryItems = [
         URLQueryItem(name: "client_id", value: config.clientID),
         URLQueryItem(name: "response_type", value: "code"),
-        URLQueryItem(name: "scope", value: "https://www.googleapis.com/auth/drive.appdata"),
+        URLQueryItem(name: "scope", value: config.authScope),
         URLQueryItem(name: "redirect_uri", value: config.redirectURI)
       ]
       let url = components.url!

@@ -64,6 +64,7 @@ struct ContentView_Previews: PreviewProvider {
 extension GoogleDriveClient.Config: DependencyKey {
   public static let liveValue = Config(
     clientID: "437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v.apps.googleusercontent.com",
+    authScope: "https://www.googleapis.com/auth/drive.appdata",
     redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
   )
 }
