@@ -9,13 +9,11 @@ struct ContentView: View {
   @State var filesList: FilesList?
 
   var body: some View {
-    NavigationStack {
-      Form {
-        authSection
-        filesSection
-      }
-      .navigationTitle("Example")
+    Form {
+      authSection
+      filesSection
     }
+    .navigationTitle("Example")
     .task {
       for await isSignedIn in auth.isSignedInStream() {
         self.isSignedIn = isSignedIn
