@@ -3,17 +3,53 @@ import GoogleDriveClient
 import SwiftUI
 
 struct ContentView: View {
-  @Dependency(\.googleDriveExample) var example
+  @Dependency(\.googleDriveClientAuthService) var auth
+  @State var isSignedIn = false
 
   var body: some View {
-    VStack {
-      Image(systemName: "globe")
-        .imageScale(.large)
-        .foregroundColor(.accentColor)
-      Text("Hello, world!")
-      Text(example())
+    NavigationStack {
+      Form {
+        authSection
+      }
+      .navigationTitle("Example")
     }
-    .padding()
+    .task {
+      isSignedIn = await auth.isSignedIn()
+    }
+    .onOpenURL { url in
+      Task {
+        try await auth.handleRedirect(url)
+        isSignedIn = await auth.isSignedIn()
+      }
+    }
+  }
+
+  var authSection: some View {
+    Section("Auth") {
+      if !isSignedIn {
+        Text("You are signed out")
+
+        Button {
+          Task {
+            await auth.signIn()
+            isSignedIn = await auth.isSignedIn()
+          }
+        } label: {
+          Text("Sign In")
+        }
+      } else {
+        Text("You are signed in")
+
+        Button(role: .destructive) {
+          Task {
+            await auth.signOut()
+            isSignedIn = await auth.isSignedIn()
+          }
+        } label: {
+          Text("Sign Out")
+        }
+      }
+    }
   }
 }
 
@@ -24,3 +60,10 @@ struct ContentView_Previews: PreviewProvider {
   }
 }
 #endif
+
+extension GoogleDriveClient.Config: DependencyKey {
+  public static let liveValue = Config(
+    clientID: "437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v.apps.googleusercontent.com",
+    redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
+  )
+}

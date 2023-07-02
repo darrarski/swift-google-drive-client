@@ -14,6 +14,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3139E73E2A51F42A00A8C988 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		315AD3B92A50EC0300801EBB /* GoogleDriveClientExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleDriveClientExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		315AD3BC2A50EC0300801EBB /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		315AD3BE2A50EC0300801EBB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,6 +54,7 @@
 			children = (
 				315AD3BC2A50EC0300801EBB /* App.swift */,
 				315AD3BE2A50EC0300801EBB /* ContentView.swift */,
+				3139E73E2A51F42A00A8C988 /* Info.plist */,
 				315AD3C02A50EC0400801EBB /* Assets.xcassets */,
 			);
 			path = GoogleDriveClientExampleApp;
@@ -261,6 +263,7 @@
 				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleDriveClientExampleApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +291,7 @@
 				CURRENT_PROJECT_VERSION = 0;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleDriveClientExampleApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
