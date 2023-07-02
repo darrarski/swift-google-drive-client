@@ -94,7 +94,6 @@ public struct ListFiles: Sendable {
 extension ListFiles: DependencyKey {
   public static let liveValue = ListFiles(
     run: { params in
-      @Dependency(\.googleDriveClientConfig) var config
       @Dependency(\.googleDriveClientKeychain) var keychain
       @Dependency(\.urlSession) var session
 
