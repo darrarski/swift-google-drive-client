@@ -12,7 +12,7 @@ public struct AuthService: Sendable {
   public enum Error: Swift.Error, Sendable, Equatable {
     case codeError(String)
     case codeNotFoundInRedirectURL
-    case tokenError(statusCode: Int?, data: Data)
+    case response(statusCode: Int?, data: Data)
   }
 
   public init(
@@ -68,48 +68,50 @@ extension AuthService: DependencyKey {
       @Dependency(\.googleDriveClientConfig) var config
       @Dependency(\.urlSession) var session
 
-      guard url.absoluteString.starts(with: config.redirectURI) else {
-        return
-      }
+      guard url.absoluteString.starts(with: config.redirectURI) else { return }
+
       let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
       let code = components?.queryItems?.first(where: { $0.name == "code" })?.value
       let error = components?.queryItems?.first(where: { $0.name == "error" })?.value
-      if let error {
-        throw Error.codeError(error)
-      }
-      guard let code else {
-        throw Error.codeNotFoundInRedirectURL
-      }
+
+      if let error { throw Error.codeError(error) }
+      guard let code else { throw Error.codeNotFoundInRedirectURL }
+
       let request: URLRequest = {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "www.googleapis.com"
         components.path = "/oauth2/v4/token"
-        let url = components.url!
-        var request = URLRequest(url: url)
+
+        var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        let params = [
+        request.setValue(
+          "application/x-www-form-urlencoded",
+          forHTTPHeaderField: "Content-Type"
+        )
+        request.httpBody = [
           "code": code,
           "client_id": config.clientID,
           "grant_type": "authorization_code",
           "redirect_uri": config.redirectURI
-        ]
-        let bodyString = params
-          .map { key, value in "\(key)=\(value)" }
+        ].map { key, value in "\(key)=\(value)" }
           .joined(separator: "&")
-        let bodyData = bodyString.data(using: .utf8)
-        request.httpBody = bodyData
+          .data(using: .utf8)
+
         return request
       }()
+
       let (responseData, response) = try await session.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
-      guard let statusCode = statusCode, (200..<300).contains(statusCode) else {
-        throw Error.tokenError(statusCode: statusCode, data: responseData)
+
+      guard let statusCode, (200..<300).contains(statusCode) else {
+        throw Error.response(statusCode: statusCode, data: responseData)
       }
+
       let decoder = JSONDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
       let auth = try decoder.decode(Auth.self, from: responseData)
+
       await saveAuth(auth)
     },
     signOut: {
@@ -141,13 +143,14 @@ extension AuthService: DependencyKey {
 
   public static let testValue = AuthService(
     isSignedIn: unimplemented("\(Self.self).isSignedIn", placeholder: false),
-    isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .never),
+    isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .finished),
     signIn: unimplemented("\(Self.self).signIn"),
     handleRedirect: unimplemented("\(Self.self).handleRedirect"),
     signOut: unimplemented("\(Self.self).signOut")
   )
 
   private static let previewIsSignedIn = CurrentValueAsyncSequence(false)
+
   public static let previewValue = AuthService(
     isSignedIn: {
       await previewIsSignedIn.value
