@@ -14,7 +14,9 @@ struct ContentView: View {
       .navigationTitle("Example")
     }
     .task {
-      isSignedIn = await auth.isSignedIn()
+      for await isSignedIn in auth.isSignedInStream() {
+        self.isSignedIn = isSignedIn
+      }
     }
     .onOpenURL { url in
       Task {
@@ -32,7 +34,6 @@ struct ContentView: View {
         Button {
           Task {
             await auth.signIn()
-            isSignedIn = await auth.isSignedIn()
           }
         } label: {
           Text("Sign In")
@@ -43,7 +44,6 @@ struct ContentView: View {
         Button(role: .destructive) {
           Task {
             await auth.signOut()
-            isSignedIn = await auth.isSignedIn()
           }
         } label: {
           Text("Sign Out")

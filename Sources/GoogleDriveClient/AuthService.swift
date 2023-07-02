@@ -4,6 +4,7 @@ import XCTestDynamicOverlay
 
 public struct AuthService: Sendable {
   public typealias IsSignedIn = @Sendable () async -> Bool
+  public typealias IsSignedInStream = @Sendable () -> AsyncStream<Bool>
   public typealias SignIn = @Sendable () async -> Void
   public typealias HandleRedirect = @Sendable (URL) async throws -> Void
   public typealias SignOut = @Sendable () async -> Void
@@ -16,17 +17,20 @@ public struct AuthService: Sendable {
 
   public init(
     isSignedIn: @escaping IsSignedIn,
+    isSignedInStream: @escaping IsSignedInStream,
     signIn: @escaping SignIn,
     handleRedirect: @escaping HandleRedirect,
     signOut: @escaping SignOut
   ) {
     self.isSignedIn = isSignedIn
+    self.isSignedInStream = isSignedInStream
     self.signIn = signIn
     self.handleRedirect = handleRedirect
     self.signOut = signOut
   }
 
   public var isSignedIn: IsSignedIn
+  public var isSignedInStream: IsSignedInStream
   public var signIn: SignIn
   public var handleRedirect: HandleRedirect
   public var signOut: SignOut
@@ -35,8 +39,12 @@ public struct AuthService: Sendable {
 extension AuthService: DependencyKey {
   public static let liveValue = AuthService(
     isSignedIn: {
-      @Dependency(\.googleDriveClientKeychain) var keychain
-      return await keychain.loadAuth() != nil
+      await checkAuth()
+      return await isSignedIn.value
+    },
+    isSignedInStream: {
+      Task { await checkAuth() }
+      return isSignedIn.eraseToStream()
     },
     signIn: {
       @Dependency(\.googleDriveClientConfig) var config
@@ -58,7 +66,6 @@ extension AuthService: DependencyKey {
     },
     handleRedirect: { url in
       @Dependency(\.googleDriveClientConfig) var config
-      @Dependency(\.googleDriveClientKeychain) var keychain
       @Dependency(\.urlSession) var session
 
       guard url.absoluteString.starts(with: config.redirectURI) else {
@@ -103,25 +110,50 @@ extension AuthService: DependencyKey {
       let decoder = JSONDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
       let auth = try decoder.decode(Auth.self, from: responseData)
-      await keychain.saveAuth(auth)
+      await saveAuth(auth)
     },
     signOut: {
-      @Dependency(\.googleDriveClientKeychain) var keychain
-      await keychain.deleteAuth()
+      await saveAuth(nil)
     }
   )
 
+  private static let isSignedIn = CurrentValueAsyncSequence(false)
+
+  private static func checkAuth() async {
+    @Dependency(\.googleDriveClientKeychain) var keychain
+
+    let hasAuth = await keychain.loadAuth() != nil
+    if await isSignedIn.value != hasAuth {
+      await isSignedIn.setValue(hasAuth)
+    }
+  }
+
+  private static func saveAuth(_ auth: Auth?) async {
+    @Dependency(\.googleDriveClientKeychain) var keychain
+
+    if let auth {
+      await keychain.saveAuth(auth)
+    } else {
+      await keychain.deleteAuth()
+    }
+    await checkAuth()
+  }
+
   public static let testValue = AuthService(
     isSignedIn: unimplemented("\(Self.self).isSignedIn", placeholder: false),
+    isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .never),
     signIn: unimplemented("\(Self.self).signIn"),
     handleRedirect: unimplemented("\(Self.self).handleRedirect"),
     signOut: unimplemented("\(Self.self).signOut")
   )
 
-  private static let previewIsSignedIn = ActorIsolated(false)
+  private static let previewIsSignedIn = CurrentValueAsyncSequence(false)
   public static let previewValue = AuthService(
     isSignedIn: {
       await previewIsSignedIn.value
+    },
+    isSignedInStream: {
+      previewIsSignedIn.eraseToStream()
     },
     signIn: {
       await previewIsSignedIn.setValue(true)
