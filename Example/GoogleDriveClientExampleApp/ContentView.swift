@@ -4,12 +4,15 @@ import SwiftUI
 
 struct ContentView: View {
   @Dependency(\.googleDriveClientAuthService) var auth
+  @Dependency(\.googleDriveClientListFiles) var listFiles
   @State var isSignedIn = false
+  @State var filesList: FilesList?
 
   var body: some View {
     NavigationStack {
       Form {
         authSection
+        filesSection
       }
       .navigationTitle("Example")
     }
@@ -51,6 +54,44 @@ struct ContentView: View {
       }
     }
   }
+
+  @ViewBuilder
+  var filesSection: some View {
+    Section("Files") {
+      Button {
+        Task<Void, Never> {
+          do {
+            let params = ListFiles.Params(
+              spaces: [.appDataFolder]
+            )
+            filesList = try await listFiles(params)
+          } catch {
+            logError(error)
+          }
+        }
+      } label: {
+        Text("List Files")
+      }
+    }
+
+    if let filesList {
+      Section {
+        if filesList.files.isEmpty {
+          Text("No files")
+        } else {
+          ForEach(filesList.files) { file in
+            VStack(alignment: .leading) {
+              Text(file.name)
+
+              Text(file.id)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 #if DEBUG
@@ -67,4 +108,12 @@ extension GoogleDriveClient.Config: DependencyKey {
     authScope: "https://www.googleapis.com/auth/drive.appdata",
     redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
   )
+}
+
+private func logError(
+  _ error: Error,
+  fileID: StaticString = #fileID,
+  line: UInt = #line
+) {
+  print("^^^ ERROR in \(fileID) line \(line): \(error)")
 }
