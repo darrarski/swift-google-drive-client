@@ -8,9 +8,11 @@ struct ContentView: View {
   @Dependency(\.googleDriveClientAuthService) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientCreateFile) var createFile
+  @Dependency(\.googleDriveClientGetFileData) var getFileData
   @Dependency(\.googleDriveClientDeleteFile) var deleteFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
+  @State var fileContentAlert: String?
 
   var body: some View {
     Form {
@@ -36,6 +38,20 @@ struct ContentView: View {
         isSignedIn = await auth.isSignedIn()
       }
     }
+    .alert(
+      "File content",
+      isPresented: Binding(
+        get: { fileContentAlert != nil },
+        set: { isPresented in
+          if !isPresented {
+            fileContentAlert = nil
+          }
+        }
+      ),
+      presenting: fileContentAlert,
+      actions: { _ in Button("OK") {} },
+      message: { Text($0) }
+    )
   }
 
   var authSection: some View {
@@ -89,10 +105,11 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
+            let dateText = Date().formatted(date: .complete, time: .complete)
             let params = CreateFile.Params(
-              data: "Hello, World!".data(using: .utf8)!,
+              data: "Hello, World! \(dateText)".data(using: .utf8)!,
               metadata: .init(
-                name: "test1.txt",
+                name: "test.txt",
                 spaces: "appDataFolder",
                 mimeType: "text/plain",
                 parents: ["appDataFolder"]
@@ -117,12 +134,38 @@ struct ContentView: View {
           Text("No files")
         } else {
           ForEach(filesList.files) { file in
-            VStack(alignment: .leading) {
-              Text(file.name)
+            HStack {
+              VStack(alignment: .leading) {
+                Text(file.name)
 
-              Text(file.id)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                Text(file.id)
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+              }
+
+              Spacer()
+
+              Button {
+                Task<Void, Never> {
+                  do {
+                    let params = GetFileData.Params(fileId: file.id)
+                    let data = try await getFileData(params)
+                    if let string = String(data: data, encoding: .utf8) {
+                      fileContentAlert = string
+                    } else {
+                      fileContentAlert = data.base64EncodedString()
+                    }
+                  } catch {
+                    log.error("GetFileData failure", metadata: [
+                      "error": "\(error)",
+                      "localizedDescription": "\(error.localizedDescription)"
+                    ])
+                  }
+                }
+              } label: {
+                Image(systemName: "arrow.down.circle")
+              }
+              .buttonStyle(.borderless)
             }
           }
           .onDelete { indexSet in
