@@ -160,6 +160,9 @@ extension ListFiles: DependencyKey {
       }
 
       let decoder = JSONDecoder()
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+      decoder.dateDecodingStrategy = .formatted(dateFormatter)
       return try decoder.decode(FilesList.self, from: responseData)
     }
   )
@@ -170,9 +173,27 @@ extension ListFiles: DependencyKey {
         nextPageToken: nil,
         incompleteSearch: false,
         files: [
-          File(id: "preview-1", mimeType: "preview", name: "Preview 1"),
-          File(id: "preview-2", mimeType: "preview", name: "Preview 2"),
-          File(id: "preview-3", mimeType: "preview", name: "Preview 3"),
+          File(
+            id: "preview-1",
+            mimeType: "preview",
+            name: "Preview 1",
+            createdTime: Date(),
+            modifiedTime: Date()
+          ),
+          File(
+            id: "preview-2",
+            mimeType: "preview",
+            name: "Preview 2",
+            createdTime: Date(),
+            modifiedTime: Date()
+          ),
+          File(
+            id: "preview-3",
+            mimeType: "preview",
+            name: "Preview 3",
+            createdTime: Date(),
+            modifiedTime: Date()
+          ),
         ]
       )
     }

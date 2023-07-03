@@ -112,6 +112,9 @@ extension CreateFile: DependencyKey {
     }
 
     let decoder = JSONDecoder()
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+    decoder.dateDecodingStrategy = .formatted(dateFormatter)
     return try decoder.decode(File.self, from: responseData)
   }
 

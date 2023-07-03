@@ -155,6 +155,16 @@ struct ContentView: View {
         Text(file.name)
       }
 
+      VStack(alignment: .leading) {
+        Text("Created Time").font(.caption).foregroundColor(.secondary)
+        Text(file.createdTime.formatted(date: .complete, time: .complete))
+      }
+
+      VStack(alignment: .leading) {
+        Text("Modified Time").font(.caption).foregroundColor(.secondary)
+        Text(file.modifiedTime.formatted(date: .complete, time: .complete))
+      }
+
       Button {
         Task<Void, Never> {
           do {
