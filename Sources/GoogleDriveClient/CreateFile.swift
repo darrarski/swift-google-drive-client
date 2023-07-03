@@ -70,6 +70,7 @@ extension CreateFile: DependencyKey {
       components.path = "/upload/drive/v3/files"
       components.queryItems = [
         URLQueryItem(name: "uploadType", value: "multipart"),
+        URLQueryItem(name: "fields", value: File.apiFields),
       ]
 
       let encoder = JSONEncoder()

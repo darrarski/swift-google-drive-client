@@ -64,6 +64,7 @@ extension UpdateFile: DependencyKey {
       components.path = "/upload/drive/v3/files/\(params.fileId)"
       components.queryItems = [
         URLQueryItem(name: "uploadType", value: "multipart"),
+        URLQueryItem(name: "fields", value: File.apiFields),
       ]
 
       let encoder = JSONEncoder()

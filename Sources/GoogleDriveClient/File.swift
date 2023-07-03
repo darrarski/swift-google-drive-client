@@ -13,3 +13,11 @@ public struct File: Sendable, Equatable, Identifiable, Codable {
   public var mimeType: String
   public var name: String
 }
+
+extension File {
+  static var apiFields: String = [
+    "id",
+    "mimeType",
+    "name",
+  ].joined(separator: ",")
+}

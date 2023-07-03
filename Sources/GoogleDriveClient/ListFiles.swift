@@ -107,7 +107,9 @@ extension ListFiles: DependencyKey {
         components.host = "www.googleapis.com"
         components.path = "/drive/v3/files"
 
-        var queryItems: [URLQueryItem] = []
+        var queryItems: [URLQueryItem] = [
+          URLQueryItem(name: "fields", value: FilesList.apiFields),
+        ]
         if let corpora = params.corpora {
           queryItems.append(URLQueryItem(name: "corpora", value: corpora.rawValue))
         }
