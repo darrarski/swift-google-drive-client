@@ -86,8 +86,16 @@ public struct ListFiles: Sendable {
 
   public var run: Run
 
-  public func callAsFunction(_ parameters: Params) async throws -> FilesList {
-    try await run(parameters)
+  public func callAsFunction(_ params: Params) async throws -> FilesList {
+    try await run(params)
+  }
+
+  public func callAsFunction(
+    params configure: (inout Params) -> Void = { _ in }
+  ) async throws -> FilesList {
+    var params = Params()
+    configure(&params)
+    return try await run(params)
   }
 }
 

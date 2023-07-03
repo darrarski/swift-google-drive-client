@@ -51,6 +51,24 @@ public struct CreateFile: Sendable {
   public func callAsFunction(_ params: Params) async throws -> File {
     try await run(params)
   }
+
+  public func callAsFunction(
+    name: String,
+    spaces: String,
+    mimeType: String,
+    parents: [String],
+    data: Data
+  ) async throws -> File {
+    try await run(.init(
+      data: data,
+      metadata: .init(
+        name: name,
+        spaces: spaces,
+        mimeType: mimeType,
+        parents: parents
+      )
+    ))
+  }
 }
 
 extension CreateFile: DependencyKey {

@@ -27,6 +27,10 @@ public struct GetFileData: Sendable {
   public func callAsFunction(_ params: Params) async throws -> Data {
     try await run(params)
   }
+
+  public func callAsFunction(fileId: String) async throws -> Data {
+    try await run(.init(fileId: fileId))
+  }
 }
 
 extension GetFileData: DependencyKey {

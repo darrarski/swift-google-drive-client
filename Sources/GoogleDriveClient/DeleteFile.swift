@@ -29,6 +29,10 @@ public struct DeleteFile: Sendable {
   public func callAsFunction(_ params: Params) async throws {
     try await run(params)
   }
+
+  public func callAsFunction(fileId: String) async throws {
+    try await run(.init(fileId: fileId))
+  }
 }
 
 extension DeleteFile: DependencyKey {
