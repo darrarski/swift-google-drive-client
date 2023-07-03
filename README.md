@@ -13,7 +13,7 @@ Configure OAuth 2.0 Client IDs using [Google Cloud Console](https://console.clou
 
 Configure your application so that it can handle sign-in redirects. For an iOS app, you can do it by adding or modifying `CFBundleURLTypes` in `Info.plist`:
 
-```
+```xml
 <key>CFBundleURLTypes</key>
 <array>
   <dict>
