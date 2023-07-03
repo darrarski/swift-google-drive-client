@@ -128,7 +128,7 @@ extension ListFiles: DependencyKey {
           queryItems.append(URLQueryItem(name: "orderBy", value: value))
         }
         if let pageSize = params.pageSize {
-          queryItems.append(URLQueryItem(name: "orderBy", value: "\(pageSize)"))
+          queryItems.append(URLQueryItem(name: "pageSize", value: "\(pageSize)"))
         }
         if let pageToken = params.pageToken {
           queryItems.append(URLQueryItem(name: "pageToken", value: pageToken))
