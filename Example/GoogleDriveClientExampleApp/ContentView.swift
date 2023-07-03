@@ -249,6 +249,10 @@ extension GoogleDriveClient.Config: DependencyKey {
   )
 }
 
+extension GoogleDriveClient.Keychain: DependencyKey {
+  public static var liveValue = Self.defaultLiveValue
+}
+
 extension Encodable {
   func jsonEncodedString() throws -> String {
     String(data: try JSONEncoder().encode(self), encoding: .utf8)!
