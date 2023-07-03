@@ -176,7 +176,6 @@ extension Auth: DependencyKey {
       struct ResponseBody: Decodable {
         var accessToken: String
         var expiresIn: Int
-        var refreshToken: String
         var tokenType: String
       }
 
@@ -189,7 +188,7 @@ extension Auth: DependencyKey {
           timeInterval: TimeInterval(responseBody.expiresIn),
           since: date.now
         ),
-        refreshToken: responseBody.refreshToken,
+        refreshToken: credentials.refreshToken,
         tokenType: responseBody.tokenType
       )
 
