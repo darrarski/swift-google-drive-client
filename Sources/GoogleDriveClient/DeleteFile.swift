@@ -36,7 +36,7 @@ extension DeleteFile: DependencyKey {
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.urlSession) var session
 
-    guard let auth = await keychain.loadAuth() else {
+    guard let credentials = await keychain.loadCredentials() else {
       throw Error.notAuthorized
     }
 
@@ -57,7 +57,7 @@ extension DeleteFile: DependencyKey {
       var request = URLRequest(url: components.url!)
       request.httpMethod = "DELETE"
       request.setValue(
-        "\(auth.tokenType) \(auth.accessToken)",
+        "\(credentials.tokenType) \(credentials.accessToken)",
         forHTTPHeaderField: "Authorization"
       )
 

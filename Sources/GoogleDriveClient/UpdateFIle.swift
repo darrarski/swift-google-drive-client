@@ -53,7 +53,7 @@ extension UpdateFile: DependencyKey {
     @Dependency(\.urlSession) var session
     @Dependency(\.uuid) var uuid
 
-    guard let auth = await keychain.loadAuth() else {
+    guard let credentials = await keychain.loadCredentials() else {
       throw Error.notAuthorized
     }
 
@@ -85,7 +85,7 @@ extension UpdateFile: DependencyKey {
       var request = URLRequest(url: components.url!)
       request.httpMethod = "PATCH"
       request.setValue(
-        "\(auth.tokenType) \(auth.accessToken)",
+        "\(credentials.tokenType) \(credentials.accessToken)",
         forHTTPHeaderField: "Authorization"
       )
       request.setValue(

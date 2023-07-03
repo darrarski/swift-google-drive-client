@@ -4,60 +4,62 @@ import KeychainAccess
 import XCTestDynamicOverlay
 
 public struct Keychain: Sendable {
-  public typealias LoadAuth = @Sendable () async -> Auth?
-  public typealias SaveAuth = @Sendable (Auth) async -> Void
-  public typealias DeleteAuth = @Sendable () async -> Void
+  public typealias LoadCredentials = @Sendable () async -> Credentials?
+  public typealias SaveCredentials = @Sendable (Credentials) async -> Void
+  public typealias DeleteCredentials = @Sendable () async -> Void
 
   public init(
-    loadAuth: @escaping Keychain.LoadAuth,
-    saveAuth: @escaping Keychain.SaveAuth,
-    deleteAuth: @escaping Keychain.DeleteAuth
+    loadCredentials: @escaping Keychain.LoadCredentials,
+    saveCredentials: @escaping Keychain.SaveCredentials,
+    deleteCredentials: @escaping Keychain.DeleteCredentials
   ) {
-    self.loadAuth = loadAuth
-    self.saveAuth = saveAuth
-    self.deleteAuth = deleteAuth
+    self.loadCredentials = loadCredentials
+    self.saveCredentials = saveCredentials
+    self.deleteCredentials = deleteCredentials
   }
 
-  public var loadAuth: LoadAuth
-  public var saveAuth: SaveAuth
-  public var deleteAuth: DeleteAuth
+  public var loadCredentials: LoadCredentials
+  public var saveCredentials: SaveCredentials
+  public var deleteCredentials: DeleteCredentials
 }
 
 extension Keychain: DependencyKey {
   private static var service = "pl.darrarski.GoogleDriveClient"
-  private static let authKey = "auth"
+  private static let credentialsKey = "credentials"
+
   public static var liveValue = Keychain(
-    loadAuth: {
+    loadCredentials: {
       let keychain = KeychainAccess.Keychain(service: service)
-      guard let data = keychain[data: authKey],
-            let auth = try? JSONDecoder().decode(Auth.self, from: data)
+      guard let data = keychain[data: credentialsKey],
+            let credentials = try? JSONDecoder().decode(Credentials.self, from: data)
       else { return nil }
-      return auth
+      return credentials
     },
-    saveAuth: { auth in
+    saveCredentials: { credentials in
       let keychain = KeychainAccess.Keychain(service: service)
       let encoder = JSONEncoder()
-      guard let data = try? encoder.encode(auth)
+      guard let data = try? encoder.encode(credentials)
       else { return }
-      keychain[data: authKey] = data
+      keychain[data: credentialsKey] = data
     },
-    deleteAuth: {
+    deleteCredentials: {
       let keychain = KeychainAccess.Keychain(service: service)
-      keychain[data: authKey] = nil
+      keychain[data: credentialsKey] = nil
     }
   )
 
   public static let testValue = Keychain(
-    loadAuth: unimplemented("\(Self.self).loadAuth"),
-    saveAuth: unimplemented("\(Self.self).saveAuth"),
-    deleteAuth: unimplemented("\(Self.self).deleteAuth")
+    loadCredentials: unimplemented("\(Self.self).loadCredentials"),
+    saveCredentials: unimplemented("\(Self.self).saveCredentials"),
+    deleteCredentials: unimplemented("\(Self.self).deleteCredentials")
   )
 
-  private static let previewAuth = ActorIsolated<Auth?>(nil)
+  private static let previewCredentials = ActorIsolated<Credentials?>(nil)
+
   public static let previewValue = Keychain(
-    loadAuth: { await previewAuth.value },
-    saveAuth: { await previewAuth.setValue($0) },
-    deleteAuth: { await previewAuth.setValue(nil) }
+    loadCredentials: { await previewCredentials.value },
+    saveCredentials: { await previewCredentials.setValue($0) },
+    deleteCredentials: { await previewCredentials.setValue(nil) }
   )
 }
 

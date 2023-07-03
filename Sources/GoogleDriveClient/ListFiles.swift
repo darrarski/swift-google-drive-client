@@ -97,7 +97,7 @@ extension ListFiles: DependencyKey {
       @Dependency(\.googleDriveClientKeychain) var keychain
       @Dependency(\.urlSession) var session
 
-      guard let auth = await keychain.loadAuth() else {
+      guard let credentials = await keychain.loadCredentials() else {
         throw Error.notAuthorized
       }
 
@@ -144,7 +144,7 @@ extension ListFiles: DependencyKey {
         var request = URLRequest(url: components.url!)
         request.httpMethod = "GET"
         request.setValue(
-          "\(auth.tokenType) \(auth.accessToken)",
+          "\(credentials.tokenType) \(credentials.accessToken)",
           forHTTPHeaderField: "Authorization"
         )
         return request

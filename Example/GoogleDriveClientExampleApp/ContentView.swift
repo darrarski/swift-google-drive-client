@@ -5,7 +5,7 @@ import SwiftUI
 
 struct ContentView: View {
   let log = Logger(label: Bundle.main.bundleIdentifier!)
-  @Dependency(\.googleDriveClientAuthService) var auth
+  @Dependency(\.googleDriveClientAuth) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientCreateFile) var createFile
   @Dependency(\.googleDriveClientGetFileData) var getFileData
