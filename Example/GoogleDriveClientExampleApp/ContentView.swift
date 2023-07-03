@@ -8,6 +8,7 @@ struct ContentView: View {
   @Dependency(\.googleDriveClientAuthService) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientUploadFile) var uploadFile
+  @Dependency(\.googleDriveClientDeleteFile) var deleteFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
 
@@ -63,6 +64,7 @@ struct ContentView: View {
         Task<Void, Never> {
           do {
             let params = ListFiles.Params(
+              query: "trashed=false",
               spaces: [.appDataFolder]
             )
             filesList = try await listFiles(params)
@@ -118,6 +120,23 @@ struct ContentView: View {
               Text(file.id)
                 .font(.caption)
                 .foregroundColor(.secondary)
+            }
+          }
+          .onDelete { indexSet in
+            let fileIds = indexSet.map { filesList.files[$0].id }
+            self.filesList?.files.remove(atOffsets: indexSet)
+            Task<Void, Never> {
+              for id in fileIds {
+                do {
+                  let params = DeleteFile.Params(fileId: id)
+                  try await deleteFile(params)
+                } catch {
+                  log.error("DeleteFile failure", metadata: [
+                    "error": "\(error)",
+                    "localizedDescription": "\(error.localizedDescription)"
+                  ])
+                }
+              }
             }
           }
         }
