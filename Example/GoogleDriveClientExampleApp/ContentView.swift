@@ -20,6 +20,7 @@ struct ContentView: View {
       authSection
       filesSection
     }
+    .textSelection(.enabled)
     .navigationTitle("Example")
     .task {
       for await isSignedIn in auth.isSignedInStream() {
@@ -130,89 +131,93 @@ struct ContentView: View {
     }
 
     if let filesList {
-      Section {
-        if filesList.files.isEmpty {
+      if filesList.files.isEmpty {
+        Section {
           Text("No files")
-        } else {
-          ForEach(filesList.files) { file in
-            HStack {
-              VStack(alignment: .leading) {
-                Text(file.name)
+        }
+      } else {
+        ForEach(filesList.files) { file in
+          fileSection(file)
+        }
+      }
+    }
+  }
 
-                Text(file.id)
-                  .font(.caption)
-                  .foregroundColor(.secondary)
-              }
+  func fileSection(_ file: File) -> some View {
+    Section {
+      VStack(alignment: .leading) {
+        Text("ID").font(.caption).foregroundColor(.secondary)
+        Text(file.id)
+      }
 
-              Spacer()
+      VStack(alignment: .leading) {
+        Text("Name").font(.caption).foregroundColor(.secondary)
+        Text(file.name)
+      }
 
-              Button {
-                Task<Void, Never> {
-                  do {
-                    let params = GetFileData.Params(fileId: file.id)
-                    let data = try await getFileData(params)
-                    if let string = String(data: data, encoding: .utf8) {
-                      fileContentAlert = string
-                    } else {
-                      fileContentAlert = data.base64EncodedString()
-                    }
-                  } catch {
-                    log.error("GetFileData failure", metadata: [
-                      "error": "\(error)",
-                      "localizedDescription": "\(error.localizedDescription)"
-                    ])
-                  }
-                }
-              } label: {
-                Image(systemName: "arrow.down.circle")
-              }
-
-              Button {
-                Task<Void, Never> {
-                  do {
-                    var data = try await getFileData(.init(fileId: file.id))
-                    let dateText = Date().formatted(date: .complete, time: .complete)
-                    data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
-                    let params = UpdateFile.Params(
-                      fileId: file.id,
-                      data: data,
-                      metadata: .init(
-                        mimeType: "text/plain"
-                      )
-                    )
-                    _ = try await updateFile(params)
-                  } catch {
-                    log.error("UpdateFile failure", metadata: [
-                      "error": "\(error)",
-                      "localizedDescription": "\(error.localizedDescription)"
-                    ])
-                  }
-                }
-              } label: {
-                Image(systemName: "arrow.up.circle")
-              }
-
+      Button {
+        Task<Void, Never> {
+          do {
+            let params = GetFileData.Params(fileId: file.id)
+            let data = try await getFileData(params)
+            if let string = String(data: data, encoding: .utf8) {
+              fileContentAlert = string
+            } else {
+              fileContentAlert = data.base64EncodedString()
             }
-            .buttonStyle(.borderless)
-          }
-          .onDelete { indexSet in
-            let fileIds = indexSet.map { filesList.files[$0].id }
-            self.filesList?.files.remove(atOffsets: indexSet)
-            Task<Void, Never> {
-              for id in fileIds {
-                do {
-                  let params = DeleteFile.Params(fileId: id)
-                  try await deleteFile(params)
-                } catch {
-                  log.error("DeleteFile failure", metadata: [
-                    "error": "\(error)",
-                    "localizedDescription": "\(error.localizedDescription)"
-                  ])
-                }
-              }
-            }
+          } catch {
+            log.error("GetFileData failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
           }
         }
+      } label: {
+        Text("Get File Data")
+      }
+
+      Button {
+        Task<Void, Never> {
+          do {
+            var data = try await getFileData(.init(fileId: file.id))
+            let dateText = Date().formatted(date: .complete, time: .complete)
+            data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
+            let params = UpdateFile.Params(
+              fileId: file.id,
+              data: data,
+              metadata: .init(
+                mimeType: "text/plain"
+              )
+            )
+            _ = try await updateFile(params)
+          } catch {
+            log.error("UpdateFile failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
+          }
+        }
+      } label: {
+        Text("Update File")
+      }
+
+      Button(role: .destructive) {
+        Task<Void, Never> {
+          do {
+            let params = DeleteFile.Params(fileId: file.id)
+            try await deleteFile(params)
+            if let files = filesList?.files {
+              filesList?.files = files.filter { $0.id != file.id }
+            }
+          } catch {
+            log.error("DeleteFile failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
+          }
+        }
+      } label: {
+        Text("Delete File")
       }
     }
   }
