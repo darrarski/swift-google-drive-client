@@ -5,6 +5,14 @@
 
 Basic Google Drive HTTP API client that does not depend on Google's SDK.
 
+- Authorize access
+- List files
+- Get file info
+- Get file (download)
+- Create file (upload)
+- Update file (upload)
+- Delete file
+
 ## 📖 Usage
 
 Use [Swift Package Manager](https://swift.org/package-manager/) to add the `GoogleDriveClient` library as a dependency to your project.
