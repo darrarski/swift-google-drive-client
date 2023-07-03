@@ -94,8 +94,11 @@ public struct ListFiles: Sendable {
 extension ListFiles: DependencyKey {
   public static let liveValue = ListFiles(
     run: { params in
+      @Dependency(\.googleDriveClientAuth) var auth
       @Dependency(\.googleDriveClientKeychain) var keychain
       @Dependency(\.urlSession) var session
+
+      try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
         throw Error.notAuthorized

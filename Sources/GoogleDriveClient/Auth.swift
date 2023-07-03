@@ -7,6 +7,7 @@ public struct Auth: Sendable {
   public typealias IsSignedInStream = @Sendable () -> AsyncStream<Bool>
   public typealias SignIn = @Sendable () async -> Void
   public typealias HandleRedirect = @Sendable (URL) async throws -> Void
+  public typealias RefreshToken = @Sendable () async throws -> Void
   public typealias SignOut = @Sendable () async -> Void
 
   public enum Error: Swift.Error, Sendable, Equatable {
@@ -20,12 +21,14 @@ public struct Auth: Sendable {
     isSignedInStream: @escaping IsSignedInStream,
     signIn: @escaping SignIn,
     handleRedirect: @escaping HandleRedirect,
+    refreshToken: @escaping RefreshToken,
     signOut: @escaping SignOut
   ) {
     self.isSignedIn = isSignedIn
     self.isSignedInStream = isSignedInStream
     self.signIn = signIn
     self.handleRedirect = handleRedirect
+    self.refreshToken = refreshToken
     self.signOut = signOut
   }
 
@@ -33,6 +36,7 @@ public struct Auth: Sendable {
   public var isSignedInStream: IsSignedInStream
   public var signIn: SignIn
   public var handleRedirect: HandleRedirect
+  public var refreshToken: RefreshToken
   public var signOut: SignOut
 }
 
@@ -67,6 +71,7 @@ extension Auth: DependencyKey {
     handleRedirect: { url in
       @Dependency(\.googleDriveClientConfig) var config
       @Dependency(\.urlSession) var session
+      @Dependency(\.date) var date
 
       guard url.absoluteString.starts(with: config.redirectURI) else { return }
 
@@ -108,11 +113,86 @@ extension Auth: DependencyKey {
         throw Error.response(statusCode: statusCode, data: responseData)
       }
 
+      struct ResponseBody: Decodable {
+        var accessToken: String
+        var expiresIn: Int
+        var refreshToken: String
+        var tokenType: String
+      }
+
       let decoder = JSONDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
-      let credentials = try decoder.decode(Credentials.self, from: responseData)
+      let responseBody = try decoder.decode(ResponseBody.self, from: responseData)
+      let credentials = Credentials(
+        accessToken: responseBody.accessToken,
+        expiresAt: Date(
+          timeInterval: TimeInterval(responseBody.expiresIn),
+          since: date.now
+        ),
+        refreshToken: responseBody.refreshToken,
+        tokenType: responseBody.tokenType
+      )
 
       await saveCredentials(credentials)
+    },
+    refreshToken: {
+      @Dependency(\.googleDriveClientConfig) var config
+      @Dependency(\.urlSession) var session
+      @Dependency(\.date) var date
+
+      guard let credentials = await loadCredentials() else { return }
+      guard credentials.expiresAt <= date.now else { return }
+
+      let request: URLRequest = {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "oauth2.googleapis.com"
+        components.path = "/token"
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "POST"
+        request.setValue(
+          "application/x-www-form-urlencoded",
+          forHTTPHeaderField: "Content-Type"
+        )
+        request.httpBody = [
+          "client_id": config.clientID,
+          "grant_type": "refresh_token",
+          "refresh_token": credentials.refreshToken
+        ].map { key, value in "\(key)=\(value)" }
+          .joined(separator: "&")
+          .data(using: .utf8)
+
+        return request
+      }()
+
+      let (responseData, response) = try await session.data(for: request)
+      let statusCode = (response as? HTTPURLResponse)?.statusCode
+
+      guard let statusCode, (200..<300).contains(statusCode) else {
+        throw Error.response(statusCode: statusCode, data: responseData)
+      }
+
+      struct ResponseBody: Decodable {
+        var accessToken: String
+        var expiresIn: Int
+        var tokenType: String
+      }
+
+      let decoder = JSONDecoder()
+      decoder.keyDecodingStrategy = .convertFromSnakeCase
+      let responseBody = try decoder.decode(ResponseBody.self, from: responseData)
+      let newCredentials = Credentials(
+        accessToken: responseBody.accessToken,
+        expiresAt: Date(
+          timeInterval: TimeInterval(responseBody.expiresIn),
+          since: date.now
+        ),
+        refreshToken: credentials.refreshToken,
+        tokenType: responseBody.tokenType
+      )
+
+      await saveCredentials(newCredentials)
     },
     signOut: {
       await saveCredentials(nil)
@@ -123,16 +203,19 @@ extension Auth: DependencyKey {
 
   private static func checkSignedIn() async {
     @Dependency(\.googleDriveClientKeychain) var keychain
-
     let isSignedIn = await keychain.loadCredentials() != nil
     if await Self.isSignedIn.value != isSignedIn {
       await Self.isSignedIn.setValue(isSignedIn)
     }
   }
 
+  private static func loadCredentials() async -> Credentials? {
+    @Dependency(\.googleDriveClientKeychain) var keychain
+    return await keychain.loadCredentials()
+  }
+
   private static func saveCredentials(_ credentials: Credentials?) async {
     @Dependency(\.googleDriveClientKeychain) var keychain
-
     if let credentials {
       await keychain.saveCredentials(credentials)
     } else {
@@ -146,6 +229,7 @@ extension Auth: DependencyKey {
     isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .finished),
     signIn: unimplemented("\(Self.self).signIn"),
     handleRedirect: unimplemented("\(Self.self).handleRedirect"),
+    refreshToken: unimplemented("\(Self.self).refreshToken"),
     signOut: unimplemented("\(Self.self).signOut")
   )
 
@@ -162,6 +246,7 @@ extension Auth: DependencyKey {
       await previewIsSignedIn.setValue(true)
     },
     handleRedirect: { _ in },
+    refreshToken: {},
     signOut: {
       await previewIsSignedIn.setValue(false)
     }
