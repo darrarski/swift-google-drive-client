@@ -8,6 +8,7 @@ struct ContentView: View {
   @Dependency(\.googleDriveClientAuth) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientCreateFile) var createFile
+  @Dependency(\.googleDriveClientGetFile) var getFile
   @Dependency(\.googleDriveClientGetFileData) var getFileData
   @Dependency(\.googleDriveClientUpdateFile) var updateFile
   @Dependency(\.googleDriveClientDeleteFile) var deleteFile
@@ -163,6 +164,26 @@ struct ContentView: View {
       VStack(alignment: .leading) {
         Text("Modified Time").font(.caption).foregroundColor(.secondary)
         Text(file.modifiedTime.formatted(date: .complete, time: .complete))
+      }
+
+      Button {
+        Task<Void, Never> {
+          do {
+            let file = try await getFile(fileId: file.id)
+            if let files = filesList?.files {
+              filesList?.files = files.map {
+                $0.id == file.id ? file : $0
+              }
+            }
+          } catch {
+            log.error("GetFile failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
+          }
+        }
+      } label: {
+        Text("Get File")
       }
 
       Button {
