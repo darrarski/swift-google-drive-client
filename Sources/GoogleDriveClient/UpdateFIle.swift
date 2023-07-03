@@ -45,6 +45,20 @@ public struct UpdateFile: Sendable {
   public func callAsFunction(_ params: Params) async throws -> File {
     try await run(params)
   }
+
+  public func callAsFunction(
+    fileId: String,
+    data: Data,
+    mimeType: String
+  ) async throws -> File {
+    try await run(.init(
+      fileId: fileId,
+      data: data,
+      metadata: .init(
+        mimeType: mimeType
+      )
+    ))
+  }
 }
 
 extension UpdateFile: DependencyKey {
