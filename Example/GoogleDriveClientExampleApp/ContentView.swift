@@ -248,7 +248,3 @@ extension GoogleDriveClient.Config: DependencyKey {
     redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
   )
 }
-
-extension GoogleDriveClient.Keychain: DependencyKey {
-  public static var liveValue = Self.defaultLiveValue
-}

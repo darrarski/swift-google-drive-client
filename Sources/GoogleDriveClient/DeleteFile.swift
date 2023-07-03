@@ -32,48 +32,50 @@ public struct DeleteFile: Sendable {
 }
 
 extension DeleteFile: DependencyKey {
-  public static let liveValue = DeleteFile { params in
+  public static let liveValue: DeleteFile = {
     @Dependency(\.googleDriveClientAuth) var auth
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.urlSession) var session
 
-    try await auth.refreshToken()
+    return DeleteFile { params in
+      try await auth.refreshToken()
 
-    guard let credentials = await keychain.loadCredentials() else {
-      throw Error.notAuthorized
-    }
-
-    let request: URLRequest = {
-      var components = URLComponents()
-      components.scheme = "https"
-      components.host = "www.googleapis.com"
-      components.path = "/drive/v3/files/\(params.fileId)"
-      var queryItems: [URLQueryItem] = []
-      if let supportsAllDrives = params.supportsAllDrives {
-        let value = supportsAllDrives ? "true" : "false"
-        queryItems.append(URLQueryItem(name: "supportsAllDrives", value: value))
-      }
-      if !queryItems.isEmpty {
-        components.queryItems = queryItems
+      guard let credentials = await keychain.loadCredentials() else {
+        throw Error.notAuthorized
       }
 
-      var request = URLRequest(url: components.url!)
-      request.httpMethod = "DELETE"
-      request.setValue(
-        "\(credentials.tokenType) \(credentials.accessToken)",
-        forHTTPHeaderField: "Authorization"
-      )
+      let request: URLRequest = {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.googleapis.com"
+        components.path = "/drive/v3/files/\(params.fileId)"
+        var queryItems: [URLQueryItem] = []
+        if let supportsAllDrives = params.supportsAllDrives {
+          let value = supportsAllDrives ? "true" : "false"
+          queryItems.append(URLQueryItem(name: "supportsAllDrives", value: value))
+        }
+        if !queryItems.isEmpty {
+          components.queryItems = queryItems
+        }
 
-      return request
-    }()
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "DELETE"
+        request.setValue(
+          "\(credentials.tokenType) \(credentials.accessToken)",
+          forHTTPHeaderField: "Authorization"
+        )
 
-    let (responseData, response) = try await session.data(for: request)
-    let statusCode = (response as? HTTPURLResponse)?.statusCode
+        return request
+      }()
 
-    guard let statusCode, (200..<300).contains(statusCode) else {
-      throw Error.response(statusCode: statusCode, data: responseData)
+      let (responseData, response) = try await session.data(for: request)
+      let statusCode = (response as? HTTPURLResponse)?.statusCode
+
+      guard let statusCode, (200..<300).contains(statusCode) else {
+        throw Error.response(statusCode: statusCode, data: responseData)
+      }
     }
-  }
+  }()
 
   public static let testValue = DeleteFile(
     run: unimplemented("\(Self.self).run")

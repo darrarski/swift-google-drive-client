@@ -23,11 +23,11 @@ public struct Keychain: Sendable {
   public var deleteCredentials: DeleteCredentials
 }
 
-extension Keychain: TestDependencyKey {
+extension Keychain: DependencyKey {
   private static var service = "pl.darrarski.GoogleDriveClient"
   private static let credentialsKey = "credentials"
 
-  public static var defaultLiveValue = Keychain(
+  public static let liveValue = Keychain(
     loadCredentials: {
       let keychain = KeychainAccess.Keychain(service: service)
       guard let data = keychain[data: credentialsKey],
