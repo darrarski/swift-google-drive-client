@@ -73,7 +73,7 @@ extension GoogleDriveClient.Keychain: DependencyKey {
 
 ### ▶️ Example
 
-This repository contains an example iOS application built with SwiftUI.
+This repository contains an [example iOS application](Example/GoogleDriveClientExampleApp) built with SwiftUI.
 
 - Open `GoogleDriveClient.xcworkspace` in Xcode.
 - Example source code is contained in the `Example` Xcode project.
