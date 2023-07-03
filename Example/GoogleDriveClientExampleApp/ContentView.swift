@@ -5,6 +5,7 @@ import SwiftUI
 struct ContentView: View {
   @Dependency(\.googleDriveClientAuthService) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
+  @Dependency(\.googleDriveClientUploadFile) var uploadFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
 
@@ -69,6 +70,27 @@ struct ContentView: View {
         }
       } label: {
         Text("List Files")
+      }
+
+      Button {
+        Task<Void, Never> {
+          do {
+            let params = UploadFile.Params(
+              data: "Hello, World!".data(using: .utf8)!,
+              metadata: .init(
+                name: "test1.txt",
+                spaces: "appDataFolder",
+                mimeType: "text/plain",
+                parents: ["appDataFolder"]
+              )
+            )
+            _ = try await uploadFile(params)
+          } catch {
+            logError(error)
+          }
+        }
+      } label: {
+        Text("Upload File")
       }
     }
 

@@ -168,9 +168,9 @@ extension ListFiles: DependencyKey {
         nextPageToken: nil,
         incompleteSearch: false,
         files: [
-          File(id: "preview-1", name: "Preview 1"),
-          File(id: "preview-2", name: "Preview 2"),
-          File(id: "preview-3", name: "Preview 3"),
+          File(id: "preview-1", mimeType: "preview", name: "Preview 1"),
+          File(id: "preview-2", mimeType: "preview", name: "Preview 2"),
+          File(id: "preview-3", mimeType: "preview", name: "Preview 3"),
         ]
       )
     }
