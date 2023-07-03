@@ -89,11 +89,10 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            let params = ListFiles.Params(
-              query: "trashed=false",
-              spaces: [.appDataFolder]
-            )
-            filesList = try await listFiles(params)
+            filesList = try await listFiles {
+              $0.query = "trashed=false"
+              $0.spaces = [.appDataFolder]
+            }
           } catch {
             log.error("ListFiles failure", metadata: [
               "error": "\(error)",
@@ -109,16 +108,13 @@ struct ContentView: View {
         Task<Void, Never> {
           do {
             let dateText = Date().formatted(date: .complete, time: .complete)
-            let params = CreateFile.Params(
-              data: "Hello, World!\nCreated at \(dateText)".data(using: .utf8)!,
-              metadata: .init(
-                name: "test.txt",
-                spaces: "appDataFolder",
-                mimeType: "text/plain",
-                parents: ["appDataFolder"]
-              )
+            _ = try await createFile(
+              name: "test.txt",
+              spaces: "appDataFolder",
+              mimeType: "text/plain",
+              parents: ["appDataFolder"],
+              data: "Hello, World!\nCreated at \(dateText)".data(using: .utf8)!
             )
-            _ = try await createFile(params)
           } catch {
             log.error("CreateFile failure", metadata: [
               "error": "\(error)",
@@ -210,17 +206,14 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            var data = try await getFileData(.init(fileId: file.id))
+            var data = try await getFileData(fileId: file.id)
             let dateText = Date().formatted(date: .complete, time: .complete)
             data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
-            let params = UpdateFile.Params(
+            _ = try await updateFile(
               fileId: file.id,
               data: data,
-              metadata: .init(
-                mimeType: "text/plain"
-              )
+              mimeType: "text/plain"
             )
-            _ = try await updateFile(params)
           } catch {
             log.error("UpdateFile failure", metadata: [
               "error": "\(error)",
@@ -235,8 +228,7 @@ struct ContentView: View {
       Button(role: .destructive) {
         Task<Void, Never> {
           do {
-            let params = DeleteFile.Params(fileId: file.id)
-            try await deleteFile(params)
+            try await deleteFile(fileId: file.id)
             if let files = filesList?.files {
               filesList?.files = files.filter { $0.id != file.id }
             }
