@@ -2,7 +2,7 @@ import Dependencies
 import Foundation
 import XCTestDynamicOverlay
 
-public struct UploadFile: Sendable {
+public struct CreateFile: Sendable {
   public struct Params: Sendable, Equatable {
     public struct Metadata: Sendable, Equatable, Encodable {
       public init(
@@ -53,8 +53,8 @@ public struct UploadFile: Sendable {
   }
 }
 
-extension UploadFile: DependencyKey {
-  public static let liveValue = UploadFile { params in
+extension CreateFile: DependencyKey {
+  public static let liveValue = CreateFile { params in
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.urlSession) var session
     @Dependency(\.uuid) var uuid
@@ -114,14 +114,14 @@ extension UploadFile: DependencyKey {
     return try decoder.decode(File.self, from: responseData)
   }
 
-  public static let testValue = UploadFile(
+  public static let testValue = CreateFile(
     run: unimplemented("\(Self.self).run")
   )
 }
 
 extension DependencyValues {
-  public var googleDriveClientUploadFile: UploadFile {
-    get { self[UploadFile.self] }
-    set { self[UploadFile.self] = newValue }
+  public var googleDriveClientCreateFile: CreateFile {
+    get { self[CreateFile.self] }
+    set { self[CreateFile.self] = newValue }
   }
 }

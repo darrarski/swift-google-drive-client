@@ -7,7 +7,7 @@ struct ContentView: View {
   let log = Logger(label: Bundle.main.bundleIdentifier!)
   @Dependency(\.googleDriveClientAuthService) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
-  @Dependency(\.googleDriveClientUploadFile) var uploadFile
+  @Dependency(\.googleDriveClientCreateFile) var createFile
   @Dependency(\.googleDriveClientDeleteFile) var deleteFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
@@ -89,7 +89,7 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            let params = UploadFile.Params(
+            let params = CreateFile.Params(
               data: "Hello, World!".data(using: .utf8)!,
               metadata: .init(
                 name: "test1.txt",
@@ -98,16 +98,16 @@ struct ContentView: View {
                 parents: ["appDataFolder"]
               )
             )
-            _ = try await uploadFile(params)
+            _ = try await createFile(params)
           } catch {
-            log.error("UploadFile failure", metadata: [
+            log.error("CreateFile failure", metadata: [
               "error": "\(error)",
               "localizedDescription": "\(error.localizedDescription)"
             ])
           }
         }
       } label: {
-        Text("Upload File")
+        Text("Create File")
       }
     }
 
