@@ -24,26 +24,24 @@ public struct Keychain: Sendable {
 }
 
 extension Keychain: DependencyKey {
-  private static var service = "pl.darrarski.GoogleDriveClient"
+  private static let service = "pl.darrarski.GoogleDriveClient"
+  private static let keychain = KeychainAccess.Keychain(service: service)
   private static let credentialsKey = "credentials"
+  private static let encoder = JSONEncoder()
+  private static let decoder = JSONDecoder()
 
   public static let liveValue = Keychain(
     loadCredentials: {
-      let keychain = KeychainAccess.Keychain(service: service)
       guard let data = keychain[data: credentialsKey],
-            let credentials = try? JSONDecoder().decode(Credentials.self, from: data)
+            let credentials = try? decoder.decode(Credentials.self, from: data)
       else { return nil }
       return credentials
     },
     saveCredentials: { credentials in
-      let keychain = KeychainAccess.Keychain(service: service)
-      let encoder = JSONEncoder()
-      guard let data = try? encoder.encode(credentials)
-      else { return }
+      guard let data = try? encoder.encode(credentials) else { return }
       keychain[data: credentialsKey] = data
     },
     deleteCredentials: {
-      let keychain = KeychainAccess.Keychain(service: service)
       keychain[data: credentialsKey] = nil
     }
   )

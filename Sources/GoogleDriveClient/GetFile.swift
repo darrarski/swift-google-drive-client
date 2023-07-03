@@ -72,12 +72,7 @@ extension GetFile: DependencyKey {
         throw Error.response(statusCode: statusCode, data: responseData)
       }
 
-      let decoder = JSONDecoder()
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-      decoder.dateDecodingStrategy = .formatted(dateFormatter)
-      return try decoder.decode(File.self, from: responseData)
+      return try JSONDecoder.api.decode(File.self, from: responseData)
     }
   }()
 
