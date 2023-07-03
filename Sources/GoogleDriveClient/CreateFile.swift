@@ -55,9 +55,12 @@ public struct CreateFile: Sendable {
 
 extension CreateFile: DependencyKey {
   public static let liveValue = CreateFile { params in
+    @Dependency(\.googleDriveClientAuth) var auth
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.urlSession) var session
     @Dependency(\.uuid) var uuid
+
+    try await auth.refreshToken()
 
     guard let credentials = await keychain.loadCredentials() else {
       throw Error.notAuthorized
