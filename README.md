@@ -44,30 +44,36 @@ extension GoogleDriveClient.Config: DependencyKey {
     redirectURI: "com.googleusercontent.apps.1234-abcd://"
   )
 }
-
-extension GoogleDriveClient.Keychain: DependencyKey {
-  public static var liveValue = Self.defaultLiveValue
-}
 ```
 
-The library provides a basic implementation for storing vulnerable data securely in the keychain. Optionally, you can provide your own, custom implementation:
+The library provides a basic implementation for storing vulnerable data securely in the keychain. Optionally, you can overwrite the default implementation with your own, custom one:
 
 ```swift
 import Dependencies
 import GoogleDriveClient
+import SwiftUI
 
-extension GoogleDriveClient.Keychain: DependencyKey {
-  public static var liveValue = Self(
-    loadCredentials: { () async -> Credentials? in
-      // load from secure storage and return
-    },
-    saveCredentials: { (Credentials) async -> Void in
-      // save in secure storage
-    },
-    deleteCredentials: { () async -> Void in
-      // delete from secure storage
+@main
+struct App: SwiftUI.App {
+  var body: some Scene {
+    withDependencies {
+      $0.googleDriveClientKeychain = .init(
+        loadCredentials: { () async -> Credentials? in
+          // load from secure storage and return
+        },
+        saveCredentials: { (Credentials) async -> Void in
+          // save in secure storage
+        },
+        deleteCredentials: { () async -> Void in
+          // delete from secure storage
+        }
+      )
+    } operation: {
+      WindowGroup {
+        ContentView()
+      }
     }
-  )
+  }
 }
 ``` 
 

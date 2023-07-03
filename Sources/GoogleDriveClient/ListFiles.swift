@@ -92,12 +92,12 @@ public struct ListFiles: Sendable {
 }
 
 extension ListFiles: DependencyKey {
-  public static let liveValue = ListFiles(
-    run: { params in
-      @Dependency(\.googleDriveClientAuth) var auth
-      @Dependency(\.googleDriveClientKeychain) var keychain
-      @Dependency(\.urlSession) var session
+  public static let liveValue: ListFiles = {
+    @Dependency(\.googleDriveClientAuth) var auth
+    @Dependency(\.googleDriveClientKeychain) var keychain
+    @Dependency(\.urlSession) var session
 
+    return ListFiles { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -168,39 +168,37 @@ extension ListFiles: DependencyKey {
       decoder.dateDecodingStrategy = .formatted(dateFormatter)
       return try decoder.decode(FilesList.self, from: responseData)
     }
-  )
+  }()
 
-  public static let previewValue = ListFiles(
-    run: { _ in 
-      FilesList(
-        nextPageToken: nil,
-        incompleteSearch: false,
-        files: [
-          File(
-            id: "preview-1",
-            mimeType: "preview",
-            name: "Preview 1",
-            createdTime: Date(),
-            modifiedTime: Date()
-          ),
-          File(
-            id: "preview-2",
-            mimeType: "preview",
-            name: "Preview 2",
-            createdTime: Date(),
-            modifiedTime: Date()
-          ),
-          File(
-            id: "preview-3",
-            mimeType: "preview",
-            name: "Preview 3",
-            createdTime: Date(),
-            modifiedTime: Date()
-          ),
-        ]
-      )
-    }
-  )
+  public static let previewValue = ListFiles { _ in
+    FilesList(
+      nextPageToken: nil,
+      incompleteSearch: false,
+      files: [
+        File(
+          id: "preview-1",
+          mimeType: "preview",
+          name: "Preview 1",
+          createdTime: Date(),
+          modifiedTime: Date()
+        ),
+        File(
+          id: "preview-2",
+          mimeType: "preview",
+          name: "Preview 2",
+          createdTime: Date(),
+          modifiedTime: Date()
+        ),
+        File(
+          id: "preview-3",
+          mimeType: "preview",
+          name: "Preview 3",
+          createdTime: Date(),
+          modifiedTime: Date()
+        ),
+      ]
+    )
+  }
 
   public static let testValue = ListFiles(
     run: unimplemented("\(Self.self).run")
