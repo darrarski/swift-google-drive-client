@@ -91,11 +91,7 @@ struct ContentView: View {
                 parents: ["appDataFolder"]
               )
             )
-            let file = try await uploadFile(params)
-            let fileJSON = try file.jsonEncodedString()
-            log.info("UploadFile success", metadata: [
-              "file": "\(fileJSON)"
-            ])
+            _ = try await uploadFile(params)
           } catch {
             log.error("UploadFile failure", metadata: [
               "error": "\(error)",
