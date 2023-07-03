@@ -9,6 +9,7 @@ struct ContentView: View {
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientCreateFile) var createFile
   @Dependency(\.googleDriveClientGetFileData) var getFileData
+  @Dependency(\.googleDriveClientUpdateFile) var updateFile
   @Dependency(\.googleDriveClientDeleteFile) var deleteFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
@@ -107,7 +108,7 @@ struct ContentView: View {
           do {
             let dateText = Date().formatted(date: .complete, time: .complete)
             let params = CreateFile.Params(
-              data: "Hello, World! \(dateText)".data(using: .utf8)!,
+              data: "Hello, World!\nCreated at \(dateText)".data(using: .utf8)!,
               metadata: .init(
                 name: "test.txt",
                 spaces: "appDataFolder",
@@ -165,8 +166,34 @@ struct ContentView: View {
               } label: {
                 Image(systemName: "arrow.down.circle")
               }
-              .buttonStyle(.borderless)
+
+              Button {
+                Task<Void, Never> {
+                  do {
+                    var data = try await getFileData(.init(fileId: file.id))
+                    let dateText = Date().formatted(date: .complete, time: .complete)
+                    data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
+                    let params = UpdateFile.Params(
+                      fileId: file.id,
+                      data: data,
+                      metadata: .init(
+                        mimeType: "text/plain"
+                      )
+                    )
+                    _ = try await updateFile(params)
+                  } catch {
+                    log.error("UpdateFile failure", metadata: [
+                      "error": "\(error)",
+                      "localizedDescription": "\(error.localizedDescription)"
+                    ])
+                  }
+                }
+              } label: {
+                Image(systemName: "arrow.up.circle")
+              }
+
             }
+            .buttonStyle(.borderless)
           }
           .onDelete { indexSet in
             let fileIds = indexSet.map { filesList.files[$0].id }
