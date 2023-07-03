@@ -67,6 +67,7 @@ extension Auth: DependencyKey {
     handleRedirect: { url in
       @Dependency(\.googleDriveClientConfig) var config
       @Dependency(\.urlSession) var session
+      @Dependency(\.date) var date
 
       guard url.absoluteString.starts(with: config.redirectURI) else { return }
 
@@ -108,9 +109,25 @@ extension Auth: DependencyKey {
         throw Error.response(statusCode: statusCode, data: responseData)
       }
 
+      struct ResponseBody: Decodable {
+        var accessToken: String
+        var expiresIn: Int
+        var refreshToken: String
+        var tokenType: String
+      }
+
       let decoder = JSONDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
-      let credentials = try decoder.decode(Credentials.self, from: responseData)
+      let responseBody = try decoder.decode(ResponseBody.self, from: responseData)
+      let credentials = Credentials(
+        accessToken: responseBody.accessToken,
+        expiresAt: Date(
+          timeInterval: TimeInterval(responseBody.expiresIn),
+          since: date.now
+        ),
+        refreshToken: responseBody.refreshToken,
+        tokenType: responseBody.tokenType
+      )
 
       await saveCredentials(credentials)
     },
