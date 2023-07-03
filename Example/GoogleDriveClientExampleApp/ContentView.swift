@@ -24,8 +24,15 @@ struct ContentView: View {
       }
     }
     .onOpenURL { url in
-      Task {
-        try await auth.handleRedirect(url)
+      Task<Void, Never> {
+        do {
+          try await auth.handleRedirect(url)
+        } catch {
+          log.error("Auth.HandleRedirect failure", metadata: [
+            "error": "\(error)",
+            "localizedDescription": "\(error.localizedDescription)"
+          ])
+        }
         isSignedIn = await auth.isSignedIn()
       }
     }
