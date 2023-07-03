@@ -145,9 +145,10 @@ extension Auth: DependencyKey {
           var tokenType: String
         }
 
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let responseBody = try decoder.decode(ResponseBody.self, from: responseData)
+        let responseBody = try JSONDecoder.auth.decode(
+          ResponseBody.self,
+          from: responseData
+        )
         let credentials = Credentials(
           accessToken: responseBody.accessToken,
           expiresAt: Date(
@@ -200,9 +201,10 @@ extension Auth: DependencyKey {
           var tokenType: String
         }
 
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let responseBody = try decoder.decode(ResponseBody.self, from: responseData)
+        let responseBody = try JSONDecoder.auth.decode(
+          ResponseBody.self,
+          from: responseData
+        )
         let newCredentials = Credentials(
           accessToken: responseBody.accessToken,
           expiresAt: Date(
