@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "pulseloghandler",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/PulseLogHandler.git",
+      "state" : {
+        "revision" : "3ca42eada318ad8ed9c3246f5e32c19413dae3ce",
+        "version" : "3.2.0"
+      }
+    },
+    {
       "identity" : "swift-clocks",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-clocks",
@@ -43,6 +52,15 @@
       "state" : {
         "revision" : "de1a984a71e51f6e488e98ce3652035563eb8acb",
         "version" : "0.5.1"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
       }
     },
     {

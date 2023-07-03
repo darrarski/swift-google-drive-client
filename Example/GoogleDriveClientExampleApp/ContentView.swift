@@ -1,8 +1,10 @@
 import Dependencies
 import GoogleDriveClient
+import Logging
 import SwiftUI
 
 struct ContentView: View {
+  let log = Logger(label: Bundle.main.bundleIdentifier!)
   @Dependency(\.googleDriveClientAuthService) var auth
   @Dependency(\.googleDriveClientListFiles) var listFiles
   @Dependency(\.googleDriveClientUploadFile) var uploadFile
@@ -65,7 +67,10 @@ struct ContentView: View {
             )
             filesList = try await listFiles(params)
           } catch {
-            logError(error)
+            log.error("ListFiles failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
           }
         }
       } label: {
@@ -84,9 +89,16 @@ struct ContentView: View {
                 parents: ["appDataFolder"]
               )
             )
-            _ = try await uploadFile(params)
+            let file = try await uploadFile(params)
+            let fileJSON = try file.jsonEncodedString()
+            log.info("UploadFile success", metadata: [
+              "file": "\(fileJSON)"
+            ])
           } catch {
-            logError(error)
+            log.error("UploadFile failure", metadata: [
+              "error": "\(error)",
+              "localizedDescription": "\(error.localizedDescription)"
+            ])
           }
         }
       } label: {
@@ -130,10 +142,8 @@ extension GoogleDriveClient.Config: DependencyKey {
   )
 }
 
-private func logError(
-  _ error: Error,
-  fileID: StaticString = #fileID,
-  line: UInt = #line
-) {
-  print("^^^ ERROR in \(fileID) line \(line): \(error)")
+extension Encodable {
+  func jsonEncodedString() throws -> String {
+    String(data: try JSONEncoder().encode(self), encoding: .utf8)!
+  }
 }
