@@ -10,6 +10,7 @@
 		3147429A2A52368C00E0637A /* Pulse in Frameworks */ = {isa = PBXBuildFile; productRef = 314742992A52368C00E0637A /* Pulse */; };
 		3147429C2A52368C00E0637A /* PulseUI in Frameworks */ = {isa = PBXBuildFile; productRef = 3147429B2A52368C00E0637A /* PulseUI */; };
 		3147429F2A524D2900E0637A /* PulseLogHandler in Frameworks */ = {isa = PBXBuildFile; productRef = 3147429E2A524D2900E0637A /* PulseLogHandler */; };
+		3159C5B02A54674D004886FC /* GoogleDriveClientKeychain in Frameworks */ = {isa = PBXBuildFile; productRef = 3159C5AF2A54674D004886FC /* GoogleDriveClientKeychain */; };
 		315AD3BD2A50EC0300801EBB /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315AD3BC2A50EC0300801EBB /* App.swift */; };
 		315AD3BF2A50EC0300801EBB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315AD3BE2A50EC0300801EBB /* ContentView.swift */; };
 		315AD3C12A50EC0400801EBB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 315AD3C02A50EC0400801EBB /* Assets.xcassets */; };
@@ -35,6 +36,7 @@
 				31C619A62A545EB600735DFD /* Dependencies in Frameworks */,
 				3147429F2A524D2900E0637A /* PulseLogHandler in Frameworks */,
 				3147429C2A52368C00E0637A /* PulseUI in Frameworks */,
+				3159C5B02A54674D004886FC /* GoogleDriveClientKeychain in Frameworks */,
 				3147429A2A52368C00E0637A /* Pulse in Frameworks */,
 				315AD3CC2A50ED6D00801EBB /* GoogleDriveClient in Frameworks */,
 			);
@@ -93,6 +95,7 @@
 				3147429B2A52368C00E0637A /* PulseUI */,
 				3147429E2A524D2900E0637A /* PulseLogHandler */,
 				31C619A52A545EB600735DFD /* Dependencies */,
+				3159C5AF2A54674D004886FC /* GoogleDriveClientKeychain */,
 			);
 			productName = GoogleDriveClientExampleApp;
 			productReference = 315AD3B92A50EC0300801EBB /* GoogleDriveClientExampleApp.app */;
@@ -396,6 +399,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3147429D2A524D2900E0637A /* XCRemoteSwiftPackageReference "PulseLogHandler" */;
 			productName = PulseLogHandler;
+		};
+		3159C5AF2A54674D004886FC /* GoogleDriveClientKeychain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GoogleDriveClientKeychain;
 		};
 		315AD3CB2A50ED6D00801EBB /* GoogleDriveClient */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -11,14 +11,19 @@ let package = Package(
   ],
   products: [
     .library(name: "GoogleDriveClient", targets: ["GoogleDriveClient"]),
+    .library(name: "GoogleDriveClientKeychain", targets: ["GoogleDriveClientKeychain"]),
   ],
   dependencies: [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
   ],
   targets: [
     .target(
-      name: "GoogleDriveClient",
+      name: "GoogleDriveClient"
+    ),
+    .target(
+      name: "GoogleDriveClientKeychain",
       dependencies: [
+        .target(name: "GoogleDriveClient"),
         .product(name: "KeychainAccess", package: "KeychainAccess"),
       ]
     ),
