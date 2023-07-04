@@ -17,7 +17,7 @@ Basic Google Drive HTTP API client that does not depend on Google's SDK.
 
 Use [Swift Package Manager](https://swift.org/package-manager/) to add the `GoogleDriveClient` library as a dependency to your project.
 
-Configure OAuth 2.0 Client IDs using [Google Cloud Console](https://console.cloud.google.com/). Use `iOS` application type.
+Configure OAuth 2.0 Client ID using [Google Cloud Console](https://console.cloud.google.com/). Use `iOS` application type.
 
 Configure your application so that it can handle sign-in redirects. For an iOS app, you can do it by adding or modifying `CFBundleURLTypes` in `Info.plist`:
 
@@ -37,52 +37,42 @@ Configure your application so that it can handle sign-in redirects. For an iOS a
 </array>
 ```
 
-The library uses [Dependencies](https://github.com/pointfreeco/swift-dependencies) to manage its own internal dependencies, as well as to provide an integration interface. You can access the library components using the `@Dependency` property wrapper. For more information about the `Dependencies` library check out [official documentation](https://pointfreeco.github.io/swift-dependencies/main/documentation/dependencies) and the example app included in this repository.
-
-Configure the client:
+Create the client:
 
 ```swift
-import Dependencies
 import GoogleDriveClient
 
-extension GoogleDriveClient.Config: DependencyKey {
-  public static let liveValue = Config(
-    clientID: "1234-abcd.apps.googleusercontent.com",
-    authScope: "https://www.googleapis.com/auth/drive",
-    redirectURI: "com.googleusercontent.apps.1234-abcd://"
-  )
-}
+let config = GoogleDriveClient.Config(
+  clientID: "1234-abcd.apps.googleusercontent.com",
+  authScope: "https://www.googleapis.com/auth/drive",
+  redirectURI: "com.googleusercontent.apps.1234-abcd://"
+)
+let client = GoogleDriveClient.Client.live(config: config)
 ```
+
+Make sure the `redirectURI` contains the scheme defined earlier.
 
 The library provides a basic implementation for storing vulnerable data securely in the keychain. Optionally, you can overwrite the default implementation with your own, custom one:
 
 ```swift
-import Dependencies
 import GoogleDriveClient
-import SwiftUI
 
-@main
-struct App: SwiftUI.App {
-  var body: some Scene {
-    withDependencies {
-      $0.googleDriveClientKeychain = .init(
-        loadCredentials: { () async -> Credentials? in
-          // load from secure storage and return
-        },
-        saveCredentials: { (Credentials) async -> Void in
-          // save in secure storage
-        },
-        deleteCredentials: { () async -> Void in
-          // delete from secure storage
-        }
-      )
-    } operation: {
-      WindowGroup {
-        ContentView()
-      }
-    }
+let config = GoogleDriveClient.Config(...)
+let keychain = GoogleDriveClient.Keychain(
+  loadCredentials: { () async -> Credentials? in
+    // load from secure storage and return
+  },
+  saveCredentials: { (Credentials) async -> Void in
+    // save in secure storage
+  },
+  deleteCredentials: { () async -> Void in
+    // delete from secure storage
   }
-}
+)
+let client = GoogleDriveClient.Client.live(
+  config: config,
+  keychain: keychain
+)
 ``` 
 
 ### ▶️ Example
@@ -94,6 +84,8 @@ This repository contains an [example iOS application](Example/GoogleDriveClientE
 - Run the app using the `GoogleDriveClientExampleApp` build scheme.
 - The "Example" tab provides UI that uses `GoogleDriveClient` library.
 - The "Console" tab provides UI for browsing application logs and HTTP requests.
+
+The example app uses [Dependencies](https://github.com/pointfreeco/swift-dependencies) to manage its own internal dependencies. For more information about the `Dependencies` library check out [official documentation](https://pointfreeco.github.io/swift-dependencies/main/documentation/dependencies).
 
 ## 🏛 Project structure
 
