@@ -9,14 +9,14 @@ extension Auth: DependencyKey {
     @Dependency(\.googleDriveClientConfig) var config
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.date) var date
-    @Dependency(\.openURL) var openURL
+    @Dependency(\.googleDriveClientOpenURL) var openURL
     @Dependency(\.urlSession) var urlSession
 
     return Auth.live(
       config: config,
       keychain: keychain,
       dateGenerator: { date.now },
-      openURL: { await openURL($0) },
+      openURL: openURL,
       urlSession: urlSession
     )
   }()
@@ -267,6 +267,19 @@ extension DependencyValues {
   public var googleDriveClientListFiles: ListFiles {
     get { self[ListFiles.self] }
     set { self[ListFiles.self] = newValue }
+  }
+}
+
+// MARK: - OpenURL
+
+extension OpenURL: DependencyKey {
+  public static let liveValue = OpenURL.live
+}
+
+extension DependencyValues {
+  public var googleDriveClientOpenURL: OpenURL {
+    get { self[OpenURL.self] }
+    set { self[OpenURL.self] = newValue }
   }
 }
 

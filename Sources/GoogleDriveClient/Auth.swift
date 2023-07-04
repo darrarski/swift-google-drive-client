@@ -43,7 +43,7 @@ extension Auth {
     config: Config,
     keychain: Keychain,
     dateGenerator now: @Sendable @escaping () -> Date,
-    openURL: @Sendable @escaping (URL) async -> Void,
+    openURL: OpenURL,
     urlSession: URLSession
   ) -> Auth {
     let isSignedIn = CurrentValueAsyncSequence(false)
