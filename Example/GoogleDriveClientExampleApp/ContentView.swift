@@ -32,7 +32,6 @@ struct ContentView: View {
             "localizedDescription": "\(error.localizedDescription)"
           ])
         }
-        isSignedIn = await client.auth.isSignedIn()
       }
     }
     .alert(
