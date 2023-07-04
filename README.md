@@ -52,7 +52,7 @@ let config = GoogleDriveClient.Config(
 )
 let client = GoogleDriveClient.Client.live(
   config: config,
-  keychain: .live
+  keychain: .live()
 )
 ```
 
