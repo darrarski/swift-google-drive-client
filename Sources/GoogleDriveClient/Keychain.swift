@@ -23,28 +23,35 @@ public struct Keychain: Sendable {
   public var deleteCredentials: DeleteCredentials
 }
 
-extension Keychain: DependencyKey {
-  private static let service = "pl.darrarski.GoogleDriveClient"
-  private static let keychain = KeychainAccess.Keychain(service: service)
-  private static let credentialsKey = "credentials"
-  private static let encoder = JSONEncoder()
-  private static let decoder = JSONDecoder()
+extension Keychain {
+  public static func live(
+    service: String =  "pl.darrarski.GoogleDriveClient"
+  ) -> Keychain {
+    let keychain = KeychainAccess.Keychain(service: service)
+    let credentialsKey = "credentials"
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
 
-  public static let liveValue = Keychain(
-    loadCredentials: {
-      guard let data = keychain[data: credentialsKey],
-            let credentials = try? decoder.decode(Credentials.self, from: data)
-      else { return nil }
-      return credentials
-    },
-    saveCredentials: { credentials in
-      guard let data = try? encoder.encode(credentials) else { return }
-      keychain[data: credentialsKey] = data
-    },
-    deleteCredentials: {
-      keychain[data: credentialsKey] = nil
-    }
-  )
+    return Keychain(
+      loadCredentials: {
+        guard let data = keychain[data: credentialsKey],
+              let credentials = try? decoder.decode(Credentials.self, from: data)
+        else { return nil }
+        return credentials
+      },
+      saveCredentials: { credentials in
+        guard let data = try? encoder.encode(credentials) else { return }
+        keychain[data: credentialsKey] = data
+      },
+      deleteCredentials: {
+        keychain[data: credentialsKey] = nil
+      }
+    )
+  }
+}
+
+extension Keychain: DependencyKey {
+  public static let liveValue = Keychain.live()
 
   public static let testValue = Keychain(
     loadCredentials: unimplemented("\(Self.self).loadCredentials"),

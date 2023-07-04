@@ -99,13 +99,13 @@ public struct ListFiles: Sendable {
   }
 }
 
-extension ListFiles: DependencyKey {
-  public static let liveValue: ListFiles = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-
-    return ListFiles { params in
+extension ListFiles {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession
+  ) -> ListFiles {
+    ListFiles { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -163,7 +163,7 @@ extension ListFiles: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
@@ -172,6 +172,20 @@ extension ListFiles: DependencyKey {
 
       return try JSONDecoder.api.decode(FilesList.self, from: responseData)
     }
+  }
+}
+
+extension ListFiles: DependencyKey {
+  public static let liveValue: ListFiles = {
+    @Dependency(\.googleDriveClientAuth) var auth
+    @Dependency(\.googleDriveClientKeychain) var keychain
+    @Dependency(\.urlSession) var urlSession
+
+    return ListFiles.live(
+      auth: auth,
+      keychain: keychain,
+      urlSession: urlSession
+    )
   }()
 
   public static let previewValue = ListFiles { _ in

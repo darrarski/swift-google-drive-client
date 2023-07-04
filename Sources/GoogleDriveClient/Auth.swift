@@ -40,14 +40,14 @@ public struct Auth: Sendable {
   public var signOut: SignOut
 }
 
-extension Auth: DependencyKey {
-  public static let liveValue: Auth = {
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.googleDriveClientConfig) var config
-    @Dependency(\.date) var date
-    @Dependency(\.openURL) var openURL
-    @Dependency(\.urlSession) var session
-
+extension Auth {
+  public static func live(
+    config: Config,
+    keychain: Keychain,
+    dateGenerator now: @Sendable @escaping () -> Date,
+    openURL: @Sendable @escaping (URL) async -> Void,
+    urlSession: URLSession
+  ) -> Auth {
     let isSignedIn = CurrentValueAsyncSequence(false)
 
     @Sendable
@@ -131,7 +131,7 @@ extension Auth: DependencyKey {
           return request
         }()
 
-        let (responseData, response) = try await session.data(for: request)
+        let (responseData, response) = try await urlSession.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
@@ -153,7 +153,7 @@ extension Auth: DependencyKey {
           accessToken: responseBody.accessToken,
           expiresAt: Date(
             timeInterval: TimeInterval(responseBody.expiresIn),
-            since: date.now
+            since: now()
           ),
           refreshToken: responseBody.refreshToken,
           tokenType: responseBody.tokenType
@@ -163,7 +163,7 @@ extension Auth: DependencyKey {
       },
       refreshToken: {
         guard let credentials = await loadCredentials() else { return }
-        guard credentials.expiresAt <= date.now else { return }
+        guard credentials.expiresAt <= now() else { return }
 
         let request: URLRequest = {
           var components = URLComponents()
@@ -188,7 +188,7 @@ extension Auth: DependencyKey {
           return request
         }()
 
-        let (responseData, response) = try await session.data(for: request)
+        let (responseData, response) = try await urlSession.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
@@ -209,7 +209,7 @@ extension Auth: DependencyKey {
           accessToken: responseBody.accessToken,
           expiresAt: Date(
             timeInterval: TimeInterval(responseBody.expiresIn),
-            since: date.now
+            since: now()
           ),
           refreshToken: credentials.refreshToken,
           tokenType: responseBody.tokenType
@@ -220,6 +220,24 @@ extension Auth: DependencyKey {
       signOut: {
         await saveCredentials(nil)
       }
+    )
+  }
+}
+
+extension Auth: DependencyKey {
+  public static let liveValue: Auth = {
+    @Dependency(\.googleDriveClientConfig) var config
+    @Dependency(\.googleDriveClientKeychain) var keychain
+    @Dependency(\.date) var date
+    @Dependency(\.openURL) var openURL
+    @Dependency(\.urlSession) var urlSession
+
+    return Auth.live(
+      config: config,
+      keychain: keychain,
+      dateGenerator: { date.now },
+      openURL: { await openURL($0) },
+      urlSession: urlSession
     )
   }()
 

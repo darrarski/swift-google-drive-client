@@ -71,14 +71,14 @@ public struct CreateFile: Sendable {
   }
 }
 
-extension CreateFile: DependencyKey {
-  public static let liveValue: CreateFile = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-    @Dependency(\.uuid) var uuid
-
-    return CreateFile { params in
+extension CreateFile {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession,
+    uuidGenerator uuid: @escaping () -> UUID
+  ) -> CreateFile {
+    CreateFile { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -126,7 +126,7 @@ extension CreateFile: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
@@ -135,6 +135,22 @@ extension CreateFile: DependencyKey {
 
       return try JSONDecoder.api.decode(File.self, from: responseData)
     }
+  }
+}
+
+extension CreateFile: DependencyKey {
+  public static let liveValue: CreateFile = {
+    @Dependency(\.googleDriveClientAuth) var auth
+    @Dependency(\.googleDriveClientKeychain) var keychain
+    @Dependency(\.urlSession) var urlSession
+    @Dependency(\.uuid) var uuid
+
+    return CreateFile.live(
+      auth: auth,
+      keychain: keychain,
+      urlSession: urlSession,
+      uuidGenerator: { uuid() }
+    )
   }()
 
   public static let testValue = CreateFile(
