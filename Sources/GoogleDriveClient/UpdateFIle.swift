@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct UpdateFile: Sendable {
   public struct Params: Sendable, Equatable {
@@ -125,32 +123,5 @@ extension UpdateFile {
 
       return try JSONDecoder.api.decode(File.self, from: responseData)
     }
-  }
-}
-
-extension UpdateFile: DependencyKey {
-  public static let liveValue: UpdateFile = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var urlSession
-    @Dependency(\.uuid) var uuid
-
-    return UpdateFile.live(
-      auth: auth,
-      keychain: keychain,
-      urlSession: urlSession,
-      uuidGenerator: { uuid() }
-    )
-  }()
-
-  public static let testValue = UpdateFile(
-    run: unimplemented("\(Self.self).run")
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientUpdateFile: UpdateFile {
-    get { self[UpdateFile.self] }
-    set { self[UpdateFile.self] = newValue }
   }
 }

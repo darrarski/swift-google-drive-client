@@ -1,7 +1,5 @@
-import Dependencies
 import Foundation
 import KeychainAccess
-import XCTestDynamicOverlay
 
 public struct Keychain: Sendable {
   public typealias LoadCredentials = @Sendable () async -> Credentials?
@@ -47,30 +45,5 @@ extension Keychain {
         keychain[data: credentialsKey] = nil
       }
     )
-  }
-}
-
-extension Keychain: DependencyKey {
-  public static let liveValue = Keychain.live()
-
-  public static let testValue = Keychain(
-    loadCredentials: unimplemented("\(Self.self).loadCredentials"),
-    saveCredentials: unimplemented("\(Self.self).saveCredentials"),
-    deleteCredentials: unimplemented("\(Self.self).deleteCredentials")
-  )
-
-  private static let previewCredentials = ActorIsolated<Credentials?>(nil)
-
-  public static let previewValue = Keychain(
-    loadCredentials: { await previewCredentials.value },
-    saveCredentials: { await previewCredentials.setValue($0) },
-    deleteCredentials: { await previewCredentials.setValue(nil) }
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientKeychain: Keychain {
-    get { self[Keychain.self] }
-    set { self[Keychain.self] = newValue }
   }
 }

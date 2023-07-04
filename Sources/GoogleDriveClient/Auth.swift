@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct Auth: Sendable {
   public typealias IsSignedIn = @Sendable () async -> Bool
@@ -221,58 +219,5 @@ extension Auth {
         await saveCredentials(nil)
       }
     )
-  }
-}
-
-extension Auth: DependencyKey {
-  public static let liveValue: Auth = {
-    @Dependency(\.googleDriveClientConfig) var config
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.date) var date
-    @Dependency(\.openURL) var openURL
-    @Dependency(\.urlSession) var urlSession
-
-    return Auth.live(
-      config: config,
-      keychain: keychain,
-      dateGenerator: { date.now },
-      openURL: { await openURL($0) },
-      urlSession: urlSession
-    )
-  }()
-
-  public static let testValue = Auth(
-    isSignedIn: unimplemented("\(Self.self).isSignedIn", placeholder: false),
-    isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .finished),
-    signIn: unimplemented("\(Self.self).signIn"),
-    handleRedirect: unimplemented("\(Self.self).handleRedirect"),
-    refreshToken: unimplemented("\(Self.self).refreshToken"),
-    signOut: unimplemented("\(Self.self).signOut")
-  )
-
-  private static let previewIsSignedIn = CurrentValueAsyncSequence(false)
-
-  public static let previewValue = Auth(
-    isSignedIn: {
-      await previewIsSignedIn.value
-    },
-    isSignedInStream: {
-      previewIsSignedIn.eraseToStream()
-    },
-    signIn: {
-      await previewIsSignedIn.setValue(true)
-    },
-    handleRedirect: { _ in },
-    refreshToken: {},
-    signOut: {
-      await previewIsSignedIn.setValue(false)
-    }
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientAuth: Auth {
-    get { self[Auth.self] }
-    set { self[Auth.self] = newValue }
   }
 }
