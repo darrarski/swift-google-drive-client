@@ -8,14 +8,14 @@ extension Auth: DependencyKey {
   public static let liveValue: Auth = {
     @Dependency(\.googleDriveClientConfig) var config
     @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.date) var date
+    @Dependency(\.googleDriveClientDateGenerator) var dateGenerator
     @Dependency(\.googleDriveClientOpenURL) var openURL
     @Dependency(\.urlSession) var urlSession
 
     return Auth.live(
       config: config,
       keychain: keychain,
-      dateGenerator: { date.now },
+      dateGenerator: dateGenerator,
       openURL: openURL,
       urlSession: urlSession
     )
@@ -73,6 +73,19 @@ extension DependencyValues {
   public var googleDriveClientConfig: Config {
     get { self[Config.self] }
     set { self[Config.self] = newValue }
+  }
+}
+
+// MARK: - DateGenerator
+
+extension DateGenerator: DependencyKey {
+  public static var liveValue = DateGenerator.live
+}
+
+extension DependencyValues {
+  public var googleDriveClientDateGenerator: DateGenerator {
+    get { self[DateGenerator.self] }
+    set { self[DateGenerator.self] = newValue }
   }
 }
 

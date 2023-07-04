@@ -42,7 +42,7 @@ extension Auth {
   public static func live(
     config: Config,
     keychain: Keychain,
-    dateGenerator now: @Sendable @escaping () -> Date,
+    dateGenerator now: DateGenerator,
     openURL: OpenURL,
     urlSession: URLSession
   ) -> Auth {
