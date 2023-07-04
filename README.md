@@ -65,10 +65,10 @@ import GoogleDriveClient
 
 let config = GoogleDriveClient.Config(...)
 let keychain = GoogleDriveClient.Keychain(
-  loadCredentials: { () async -> Credentials? in
+  loadCredentials: { () async -> GoogleDriveClient.Credentials? in
     // load from secure storage and return
   },
-  saveCredentials: { (Credentials) async -> Void in
+  saveCredentials: { (GoogleDriveClient.Credentials) async -> Void in
     // save in secure storage
   },
   deleteCredentials: { () async -> Void in
