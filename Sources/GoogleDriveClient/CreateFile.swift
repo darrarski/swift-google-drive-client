@@ -74,7 +74,7 @@ extension CreateFile {
     auth: Auth,
     keychain: Keychain,
     urlSession: URLSession,
-    uuidGenerator uuid: @escaping () -> UUID
+    uuidGenerator uuid: UUIDGenerator
   ) -> CreateFile {
     CreateFile { params in
       try await auth.refreshToken()

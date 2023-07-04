@@ -96,13 +96,13 @@ extension CreateFile: DependencyKey {
     @Dependency(\.googleDriveClientAuth) var auth
     @Dependency(\.googleDriveClientKeychain) var keychain
     @Dependency(\.urlSession) var urlSession
-    @Dependency(\.uuid) var uuid
+    @Dependency(\.googleDriveClientUUIDGenerator) var uuidGenerator
 
     return CreateFile.live(
       auth: auth,
       keychain: keychain,
       urlSession: urlSession,
-      uuidGenerator: { uuid() }
+      uuidGenerator: uuidGenerator
     )
   }()
 
@@ -302,14 +302,14 @@ extension UpdateFile: DependencyKey {
   public static let liveValue: UpdateFile = {
     @Dependency(\.googleDriveClientAuth) var auth
     @Dependency(\.googleDriveClientKeychain) var keychain
+    @Dependency(\.googleDriveClientUUIDGenerator) var uuidGenerator
     @Dependency(\.urlSession) var urlSession
-    @Dependency(\.uuid) var uuid
 
     return UpdateFile.live(
       auth: auth,
       keychain: keychain,
       urlSession: urlSession,
-      uuidGenerator: { uuid() }
+      uuidGenerator: uuidGenerator
     )
   }()
 
@@ -322,5 +322,18 @@ extension DependencyValues {
   public var googleDriveClientUpdateFile: UpdateFile {
     get { self[UpdateFile.self] }
     set { self[UpdateFile.self] = newValue }
+  }
+}
+
+// MARK: - UUIDGenerator
+
+extension UUIDGenerator: DependencyKey {
+  public static var liveValue = UUIDGenerator.live
+}
+
+extension DependencyValues {
+  public var googleDriveClientUUIDGenerator: UUIDGenerator {
+    get { self[UUIDGenerator.self] }
+    set { self[UUIDGenerator.self] = newValue }
   }
 }

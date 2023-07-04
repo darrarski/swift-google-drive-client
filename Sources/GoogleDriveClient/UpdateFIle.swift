@@ -64,7 +64,7 @@ extension UpdateFile {
     auth: Auth,
     keychain: Keychain,
     urlSession: URLSession,
-    uuidGenerator uuid: @escaping () -> UUID
+    uuidGenerator uuid: UUIDGenerator
   ) -> UpdateFile {
     UpdateFile { params in
       try await auth.refreshToken()
