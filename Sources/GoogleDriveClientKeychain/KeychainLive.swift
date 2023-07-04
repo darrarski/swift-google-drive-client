@@ -31,8 +31,6 @@ extension GoogleDriveClient.Keychain {
 
 struct _Keychain {
   enum Error: Swift.Error {
-    case itemNotFound
-    case duplicateItem
     case invalidItemFormat
     case unexpectedStatus(OSStatus)
   }
