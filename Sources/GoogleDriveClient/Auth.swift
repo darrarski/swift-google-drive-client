@@ -78,7 +78,15 @@ extension Auth {
       },
       isSignedInStream: {
         Task { await checkSignedIn() }
-        return isSignedIn.eraseToStream()
+        return {
+          var iterator: AsyncStream<Bool>.Iterator?
+          return AsyncStream {
+            if iterator == nil {
+              iterator = isSignedIn.makeAsyncIterator()
+            }
+            return await iterator?.next()
+          }
+        }()
       },
       signIn: {
         var components = URLComponents()
