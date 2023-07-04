@@ -1,10 +1,10 @@
 import Foundation
 
 @dynamicMemberLookup
-actor CurrentValueAsyncSequence<Value>: AsyncSequence where Value: Sendable {
-  typealias Element = Value
+public actor CurrentValueAsyncSequence<Value>: AsyncSequence where Value: Sendable {
+  public typealias Element = Value
 
-  init(_ value: Value) {
+  public init(_ value: Value) {
     self.value = value
   }
 
@@ -13,17 +13,17 @@ actor CurrentValueAsyncSequence<Value>: AsyncSequence where Value: Sendable {
     continuations.removeAll()
   }
 
-  private(set) var value: Value {
+  public private(set) var value: Value {
     didSet { continuations.values.forEach { $0.yield(value) } }
   }
 
-  subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> T {
+  public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> T {
     self.value[keyPath: keyPath]
   }
 
   private var continuations = [UUID: AsyncStream<Element>.Continuation]()
 
-  nonisolated func makeAsyncIterator() -> AsyncStream<Value>.Iterator {
+  public nonisolated func makeAsyncIterator() -> AsyncStream<Value>.Iterator {
     let id = UUID()
     let stream = AsyncStream<Element> { [weak self] continuation in
       Task { [self] in await self?.add(id, continuation) }
@@ -34,12 +34,12 @@ actor CurrentValueAsyncSequence<Value>: AsyncSequence where Value: Sendable {
     return stream.makeAsyncIterator()
   }
 
-  func setValue(_ value: Value) {
+  public func setValue(_ value: Value) {
     self.value = value
   }
 
   @discardableResult
-  func withValue<T>(_ operation: @Sendable (inout Value) throws -> T) rethrows -> T {
+  public func withValue<T>(_ operation: @Sendable (inout Value) throws -> T) rethrows -> T {
     var value = self.value
     defer { self.value = value }
     return try operation(&value)

@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct CreateFile: Sendable {
   public struct Params: Sendable, Equatable {
@@ -71,14 +69,14 @@ public struct CreateFile: Sendable {
   }
 }
 
-extension CreateFile: DependencyKey {
-  public static let liveValue: CreateFile = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-    @Dependency(\.uuid) var uuid
-
-    return CreateFile { params in
+extension CreateFile {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession,
+    uuidGenerator uuid: UUIDGenerator
+  ) -> CreateFile {
+    CreateFile { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -126,7 +124,7 @@ extension CreateFile: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
@@ -135,16 +133,5 @@ extension CreateFile: DependencyKey {
 
       return try JSONDecoder.api.decode(File.self, from: responseData)
     }
-  }()
-
-  public static let testValue = CreateFile(
-    run: unimplemented("\(Self.self).run")
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientCreateFile: CreateFile {
-    get { self[CreateFile.self] }
-    set { self[CreateFile.self] = newValue }
   }
 }

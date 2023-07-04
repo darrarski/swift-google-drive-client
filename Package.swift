@@ -14,13 +14,11 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies.git", from: "0.5.1"),
   ],
   targets: [
     .target(
       name: "GoogleDriveClient",
       dependencies: [
-        .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "KeychainAccess", package: "KeychainAccess"),
       ]
     ),

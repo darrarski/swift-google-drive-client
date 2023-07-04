@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct UpdateFile: Sendable {
   public struct Params: Sendable, Equatable {
@@ -61,14 +59,14 @@ public struct UpdateFile: Sendable {
   }
 }
 
-extension UpdateFile: DependencyKey {
-  public static let liveValue: UpdateFile = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-    @Dependency(\.uuid) var uuid
-
-    return UpdateFile { params in
+extension UpdateFile {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession,
+    uuidGenerator uuid: UUIDGenerator
+  ) -> UpdateFile {
+    UpdateFile { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -116,7 +114,7 @@ extension UpdateFile: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
@@ -125,16 +123,5 @@ extension UpdateFile: DependencyKey {
 
       return try JSONDecoder.api.decode(File.self, from: responseData)
     }
-  }()
-
-  public static let testValue = UpdateFile(
-    run: unimplemented("\(Self.self).run")
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientUpdateFile: UpdateFile {
-    get { self[UpdateFile.self] }
-    set { self[UpdateFile.self] = newValue }
   }
 }

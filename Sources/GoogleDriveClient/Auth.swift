@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct Auth: Sendable {
   public typealias IsSignedIn = @Sendable () async -> Bool
@@ -40,14 +38,14 @@ public struct Auth: Sendable {
   public var signOut: SignOut
 }
 
-extension Auth: DependencyKey {
-  public static let liveValue: Auth = {
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.googleDriveClientConfig) var config
-    @Dependency(\.date) var date
-    @Dependency(\.openURL) var openURL
-    @Dependency(\.urlSession) var session
-
+extension Auth {
+  public static func live(
+    config: Config,
+    keychain: Keychain,
+    dateGenerator now: DateGenerator,
+    openURL: OpenURL,
+    urlSession: URLSession
+  ) -> Auth {
     let isSignedIn = CurrentValueAsyncSequence(false)
 
     @Sendable
@@ -80,7 +78,15 @@ extension Auth: DependencyKey {
       },
       isSignedInStream: {
         Task { await checkSignedIn() }
-        return isSignedIn.eraseToStream()
+        return {
+          var iterator: AsyncStream<Bool>.Iterator?
+          return AsyncStream {
+            if iterator == nil {
+              iterator = isSignedIn.makeAsyncIterator()
+            }
+            return await iterator?.next()
+          }
+        }()
       },
       signIn: {
         var components = URLComponents()
@@ -131,7 +137,7 @@ extension Auth: DependencyKey {
           return request
         }()
 
-        let (responseData, response) = try await session.data(for: request)
+        let (responseData, response) = try await urlSession.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
@@ -153,7 +159,7 @@ extension Auth: DependencyKey {
           accessToken: responseBody.accessToken,
           expiresAt: Date(
             timeInterval: TimeInterval(responseBody.expiresIn),
-            since: date.now
+            since: now()
           ),
           refreshToken: responseBody.refreshToken,
           tokenType: responseBody.tokenType
@@ -163,7 +169,7 @@ extension Auth: DependencyKey {
       },
       refreshToken: {
         guard let credentials = await loadCredentials() else { return }
-        guard credentials.expiresAt <= date.now else { return }
+        guard credentials.expiresAt <= now() else { return }
 
         let request: URLRequest = {
           var components = URLComponents()
@@ -188,7 +194,7 @@ extension Auth: DependencyKey {
           return request
         }()
 
-        let (responseData, response) = try await session.data(for: request)
+        let (responseData, response) = try await urlSession.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
@@ -209,7 +215,7 @@ extension Auth: DependencyKey {
           accessToken: responseBody.accessToken,
           expiresAt: Date(
             timeInterval: TimeInterval(responseBody.expiresIn),
-            since: date.now
+            since: now()
           ),
           refreshToken: credentials.refreshToken,
           tokenType: responseBody.tokenType
@@ -221,40 +227,5 @@ extension Auth: DependencyKey {
         await saveCredentials(nil)
       }
     )
-  }()
-
-  public static let testValue = Auth(
-    isSignedIn: unimplemented("\(Self.self).isSignedIn", placeholder: false),
-    isSignedInStream: unimplemented("\(Self.self).isSignedInStream", placeholder: .finished),
-    signIn: unimplemented("\(Self.self).signIn"),
-    handleRedirect: unimplemented("\(Self.self).handleRedirect"),
-    refreshToken: unimplemented("\(Self.self).refreshToken"),
-    signOut: unimplemented("\(Self.self).signOut")
-  )
-
-  private static let previewIsSignedIn = CurrentValueAsyncSequence(false)
-
-  public static let previewValue = Auth(
-    isSignedIn: {
-      await previewIsSignedIn.value
-    },
-    isSignedInStream: {
-      previewIsSignedIn.eraseToStream()
-    },
-    signIn: {
-      await previewIsSignedIn.setValue(true)
-    },
-    handleRedirect: { _ in },
-    refreshToken: {},
-    signOut: {
-      await previewIsSignedIn.setValue(false)
-    }
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientAuth: Auth {
-    get { self[Auth.self] }
-    set { self[Auth.self] = newValue }
   }
 }

@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct DeleteFile: Sendable {
   public struct Params: Sendable, Equatable {
@@ -35,13 +33,13 @@ public struct DeleteFile: Sendable {
   }
 }
 
-extension DeleteFile: DependencyKey {
-  public static let liveValue: DeleteFile = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-
-    return DeleteFile { params in
+extension DeleteFile {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession
+  ) -> DeleteFile {
+    DeleteFile { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -72,23 +70,12 @@ extension DeleteFile: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
         throw Error.response(statusCode: statusCode, data: responseData)
       }
     }
-  }()
-
-  public static let testValue = DeleteFile(
-    run: unimplemented("\(Self.self).run")
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientDeleteFile: DeleteFile {
-    get { self[DeleteFile.self] }
-    set { self[DeleteFile.self] = newValue }
   }
 }

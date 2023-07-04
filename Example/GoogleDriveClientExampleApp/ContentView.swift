@@ -4,14 +4,8 @@ import Logging
 import SwiftUI
 
 struct ContentView: View {
+  @Dependency(\.googleDriveClient) var client
   let log = Logger(label: Bundle.main.bundleIdentifier!)
-  @Dependency(\.googleDriveClientAuth) var auth
-  @Dependency(\.googleDriveClientListFiles) var listFiles
-  @Dependency(\.googleDriveClientCreateFile) var createFile
-  @Dependency(\.googleDriveClientGetFile) var getFile
-  @Dependency(\.googleDriveClientGetFileData) var getFileData
-  @Dependency(\.googleDriveClientUpdateFile) var updateFile
-  @Dependency(\.googleDriveClientDeleteFile) var deleteFile
   @State var isSignedIn = false
   @State var filesList: FilesList?
   @State var fileContentAlert: String?
@@ -24,21 +18,21 @@ struct ContentView: View {
     .textSelection(.enabled)
     .navigationTitle("Example")
     .task {
-      for await isSignedIn in auth.isSignedInStream() {
+      for await isSignedIn in client.auth.isSignedInStream() {
         self.isSignedIn = isSignedIn
       }
     }
     .onOpenURL { url in
       Task<Void, Never> {
         do {
-          try await auth.handleRedirect(url)
+          try await client.auth.handleRedirect(url)
         } catch {
           log.error("Auth.HandleRedirect failure", metadata: [
             "error": "\(error)",
             "localizedDescription": "\(error.localizedDescription)"
           ])
         }
-        isSignedIn = await auth.isSignedIn()
+        isSignedIn = await client.auth.isSignedIn()
       }
     }
     .alert(
@@ -64,7 +58,7 @@ struct ContentView: View {
 
         Button {
           Task {
-            await auth.signIn()
+            await client.auth.signIn()
           }
         } label: {
           Text("Sign In")
@@ -74,7 +68,7 @@ struct ContentView: View {
 
         Button(role: .destructive) {
           Task {
-            await auth.signOut()
+            await client.auth.signOut()
           }
         } label: {
           Text("Sign Out")
@@ -89,7 +83,7 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            filesList = try await listFiles {
+            filesList = try await client.listFiles {
               $0.query = "trashed=false"
               $0.spaces = [.appDataFolder]
             }
@@ -108,7 +102,7 @@ struct ContentView: View {
         Task<Void, Never> {
           do {
             let dateText = Date().formatted(date: .complete, time: .complete)
-            _ = try await createFile(
+            _ = try await client.createFile(
               name: "test.txt",
               spaces: "appDataFolder",
               mimeType: "text/plain",
@@ -165,7 +159,7 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            let file = try await getFile(fileId: file.id)
+            let file = try await client.getFile(fileId: file.id)
             if let files = filesList?.files {
               filesList?.files = files.map {
                 $0.id == file.id ? file : $0
@@ -186,7 +180,7 @@ struct ContentView: View {
         Task<Void, Never> {
           do {
             let params = GetFileData.Params(fileId: file.id)
-            let data = try await getFileData(params)
+            let data = try await client.getFileData(params)
             if let string = String(data: data, encoding: .utf8) {
               fileContentAlert = string
             } else {
@@ -206,10 +200,10 @@ struct ContentView: View {
       Button {
         Task<Void, Never> {
           do {
-            var data = try await getFileData(fileId: file.id)
+            var data = try await client.getFileData(fileId: file.id)
             let dateText = Date().formatted(date: .complete, time: .complete)
             data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
-            _ = try await updateFile(
+            _ = try await client.updateFile(
               fileId: file.id,
               data: data,
               mimeType: "text/plain"
@@ -228,7 +222,7 @@ struct ContentView: View {
       Button(role: .destructive) {
         Task<Void, Never> {
           do {
-            try await deleteFile(fileId: file.id)
+            try await client.deleteFile(fileId: file.id)
             if let files = filesList?.files {
               filesList?.files = files.filter { $0.id != file.id }
             }
@@ -249,15 +243,9 @@ struct ContentView: View {
 #if DEBUG
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView()
+    NavigationStack {
+      ContentView()
+    }
   }
 }
 #endif
-
-extension GoogleDriveClient.Config: DependencyKey {
-  public static let liveValue = Config(
-    clientID: "437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v.apps.googleusercontent.com",
-    authScope: "https://www.googleapis.com/auth/drive.appdata",
-    redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
-  )
-}

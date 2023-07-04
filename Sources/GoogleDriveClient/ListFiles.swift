@@ -1,6 +1,4 @@
-import Dependencies
 import Foundation
-import XCTestDynamicOverlay
 
 public struct ListFiles: Sendable {
   public struct Params: Sendable, Equatable {
@@ -99,13 +97,13 @@ public struct ListFiles: Sendable {
   }
 }
 
-extension ListFiles: DependencyKey {
-  public static let liveValue: ListFiles = {
-    @Dependency(\.googleDriveClientAuth) var auth
-    @Dependency(\.googleDriveClientKeychain) var keychain
-    @Dependency(\.urlSession) var session
-
-    return ListFiles { params in
+extension ListFiles {
+  public static func live(
+    auth: Auth,
+    keychain: Keychain,
+    urlSession: URLSession
+  ) -> ListFiles {
+    ListFiles { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {
@@ -163,7 +161,7 @@ extension ListFiles: DependencyKey {
         return request
       }()
 
-      let (responseData, response) = try await session.data(for: request)
+      let (responseData, response) = try await urlSession.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
@@ -172,46 +170,5 @@ extension ListFiles: DependencyKey {
 
       return try JSONDecoder.api.decode(FilesList.self, from: responseData)
     }
-  }()
-
-  public static let previewValue = ListFiles { _ in
-    FilesList(
-      nextPageToken: nil,
-      incompleteSearch: false,
-      files: [
-        File(
-          id: "preview-1",
-          mimeType: "preview",
-          name: "Preview 1",
-          createdTime: Date(),
-          modifiedTime: Date()
-        ),
-        File(
-          id: "preview-2",
-          mimeType: "preview",
-          name: "Preview 2",
-          createdTime: Date(),
-          modifiedTime: Date()
-        ),
-        File(
-          id: "preview-3",
-          mimeType: "preview",
-          name: "Preview 3",
-          createdTime: Date(),
-          modifiedTime: Date()
-        ),
-      ]
-    )
-  }
-
-  public static let testValue = ListFiles(
-    run: unimplemented("\(Self.self).run")
-  )
-}
-
-extension DependencyValues {
-  public var googleDriveClientListFiles: ListFiles {
-    get { self[ListFiles.self] }
-    set { self[ListFiles.self] = newValue }
   }
 }

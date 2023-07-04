@@ -14,6 +14,8 @@
 		315AD3BF2A50EC0300801EBB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315AD3BE2A50EC0300801EBB /* ContentView.swift */; };
 		315AD3C12A50EC0400801EBB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 315AD3C02A50EC0400801EBB /* Assets.xcassets */; };
 		315AD3CC2A50ED6D00801EBB /* GoogleDriveClient in Frameworks */ = {isa = PBXBuildFile; productRef = 315AD3CB2A50ED6D00801EBB /* GoogleDriveClient */; };
+		31C619A32A545B5B00735DFD /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C619A22A545B5B00735DFD /* Dependencies.swift */; };
+		31C619A62A545EB600735DFD /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 31C619A52A545EB600735DFD /* Dependencies */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,7 @@
 		315AD3BC2A50EC0300801EBB /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		315AD3BE2A50EC0300801EBB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		315AD3C02A50EC0400801EBB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		31C619A22A545B5B00735DFD /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				31C619A62A545EB600735DFD /* Dependencies in Frameworks */,
 				3147429F2A524D2900E0637A /* PulseLogHandler in Frameworks */,
 				3147429C2A52368C00E0637A /* PulseUI in Frameworks */,
 				3147429A2A52368C00E0637A /* Pulse in Frameworks */,
@@ -60,6 +64,7 @@
 			children = (
 				315AD3BC2A50EC0300801EBB /* App.swift */,
 				315AD3BE2A50EC0300801EBB /* ContentView.swift */,
+				31C619A22A545B5B00735DFD /* Dependencies.swift */,
 				3139E73E2A51F42A00A8C988 /* Info.plist */,
 				315AD3C02A50EC0400801EBB /* Assets.xcassets */,
 			);
@@ -87,6 +92,7 @@
 				314742992A52368C00E0637A /* Pulse */,
 				3147429B2A52368C00E0637A /* PulseUI */,
 				3147429E2A524D2900E0637A /* PulseLogHandler */,
+				31C619A52A545EB600735DFD /* Dependencies */,
 			);
 			productName = GoogleDriveClientExampleApp;
 			productReference = 315AD3B92A50EC0300801EBB /* GoogleDriveClientExampleApp.app */;
@@ -119,6 +125,7 @@
 			packageReferences = (
 				314742982A52368C00E0637A /* XCRemoteSwiftPackageReference "Pulse" */,
 				3147429D2A524D2900E0637A /* XCRemoteSwiftPackageReference "PulseLogHandler" */,
+				31C619A42A545EB600735DFD /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 			);
 			productRefGroup = 315AD3BA2A50EC0300801EBB /* Products */;
 			projectDirPath = "";
@@ -146,6 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				315AD3BF2A50EC0300801EBB /* ContentView.swift in Sources */,
+				31C619A32A545B5B00735DFD /* Dependencies.swift in Sources */,
 				315AD3BD2A50EC0300801EBB /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -363,6 +371,14 @@
 				minimumVersion = 3.2.0;
 			};
 		};
+		31C619A42A545EB600735DFD /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -384,6 +400,11 @@
 		315AD3CB2A50ED6D00801EBB /* GoogleDriveClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = GoogleDriveClient;
+		};
+		31C619A52A545EB600735DFD /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 31C619A42A545EB600735DFD /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
