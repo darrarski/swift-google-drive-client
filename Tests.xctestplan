@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "8F25987C-B6B0-4279-958E-AB869834FF19",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "GoogleDriveClientTests",
+        "name" : "GoogleDriveClientTests"
+      }
+    }
+  ],
+  "version" : 1
+}
