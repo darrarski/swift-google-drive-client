@@ -63,7 +63,7 @@ extension UpdateFile {
   public static func live(
     auth: Auth,
     keychain: Keychain,
-    urlSession: URLSession,
+    httpClient: HTTPClient,
     uuidGenerator uuid: UUIDGenerator
   ) -> UpdateFile {
     UpdateFile { params in
@@ -114,7 +114,7 @@ extension UpdateFile {
         return request
       }()
 
-      let (responseData, response) = try await urlSession.data(for: request)
+      let (responseData, response) = try await httpClient.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {

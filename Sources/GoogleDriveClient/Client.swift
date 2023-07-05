@@ -32,7 +32,7 @@ extension Client {
   public static func live(
     config: Config,
     keychain: Keychain,
-    urlSession: URLSession = .shared,
+    httpClient: HTTPClient = .urlSession(),
     openURL: OpenURL = .live,
     dateGenerator: DateGenerator = .live,
     uuidGenerator: UUIDGenerator = .live
@@ -42,39 +42,39 @@ extension Client {
       keychain: keychain,
       dateGenerator: dateGenerator,
       openURL: openURL,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let listFiles = ListFiles.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let getFile = GetFile.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let getFileData = GetFileData.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let createFile = CreateFile.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession,
+      httpClient: httpClient,
       uuidGenerator: uuidGenerator
     )
     let updateFile = UpdateFile.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession,
+      httpClient: httpClient,
       uuidGenerator: uuidGenerator
     )
     let deleteFile = DeleteFile.live(
       auth: auth,
       keychain: keychain,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     return Client(
       auth: auth,
