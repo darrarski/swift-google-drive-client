@@ -41,6 +41,9 @@ final class GetFileDataTests: XCTestCase {
 
     let data = try await getFileData(fileId: fileId)
 
+    await didRefreshToken.withValue {
+      XCTAssertEqual($0, 1)
+    }
     await httpRequests.withValue {
       let url = URL(string: "https://www.googleapis.com/drive/v3/files/\(fileId)?alt=media")!
       var expectedRequest = URLRequest(url: url)

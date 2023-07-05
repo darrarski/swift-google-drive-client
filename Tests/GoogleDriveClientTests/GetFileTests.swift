@@ -49,6 +49,9 @@ final class GetFileTests: XCTestCase {
 
     let file = try await getFile(fileId: fileId)
 
+    await didRefreshToken.withValue {
+      XCTAssertEqual($0, 1)
+    }
     await httpRequests.withValue {
       let url = URL(string: "https://www.googleapis.com/drive/v3/files/\(fileId)?fields=\(File.apiFields)")!
       var expectedRequest = URLRequest(url: url)
@@ -56,10 +59,8 @@ final class GetFileTests: XCTestCase {
       expectedRequest.allHTTPHeaderFields = [
         "Authorization": "\(credentials.tokenType) \(credentials.accessToken)"
       ]
-
       XCTAssertEqual($0, [expectedRequest])
     }
-
     XCTAssertEqual(file, File(
       id: "1234",
       mimeType: "text/plain",

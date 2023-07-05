@@ -44,6 +44,9 @@ final class DeleteFileTests: XCTestCase {
       supportsAllDrives: true
     ))
 
+    await didRefreshToken.withValue {
+      XCTAssertEqual($0, 1)
+    }
     await httpRequests.withValue {
       let url = URL(string: "https://www.googleapis.com/drive/v3/files/\(fileId)?supportsAllDrives=true")!
       var expectedRequest = URLRequest(url: url)
@@ -51,7 +54,6 @@ final class DeleteFileTests: XCTestCase {
       expectedRequest.allHTTPHeaderFields = [
         "Authorization": "\(credentials.tokenType) \(credentials.accessToken)"
       ]
-
       XCTAssertEqual($0, [expectedRequest])
     }
   }
