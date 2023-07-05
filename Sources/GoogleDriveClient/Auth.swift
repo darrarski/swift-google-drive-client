@@ -44,7 +44,7 @@ extension Auth {
     keychain: Keychain,
     dateGenerator now: DateGenerator,
     openURL: OpenURL,
-    urlSession: URLSession
+    httpClient: HTTPClient
   ) -> Auth {
     let isSignedIn = CurrentValueAsyncSequence(false)
 
@@ -137,7 +137,7 @@ extension Auth {
           return request
         }()
 
-        let (responseData, response) = try await urlSession.data(for: request)
+        let (responseData, response) = try await httpClient.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
@@ -194,7 +194,7 @@ extension Auth {
           return request
         }()
 
-        let (responseData, response) = try await urlSession.data(for: request)
+        let (responseData, response) = try await httpClient.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {

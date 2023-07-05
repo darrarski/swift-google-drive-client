@@ -37,7 +37,7 @@ extension DeleteFile {
   public static func live(
     auth: Auth,
     keychain: Keychain,
-    urlSession: URLSession
+    httpClient: HTTPClient
   ) -> DeleteFile {
     DeleteFile { params in
       try await auth.refreshToken()
@@ -70,7 +70,7 @@ extension DeleteFile {
         return request
       }()
 
-      let (responseData, response) = try await urlSession.data(for: request)
+      let (responseData, response) = try await httpClient.data(for: request)
       let statusCode = (response as? HTTPURLResponse)?.statusCode
 
       guard let statusCode, (200..<300).contains(statusCode) else {
