@@ -138,19 +138,11 @@ final class AuthTests: XCTestCase {
         "Content-Type": "application/x-www-form-urlencoded"
       ]
       expectedRequest.httpBody = [
-        "code": code,
-        "client_id": Config.test.clientID,
-        "grant_type": "authorization_code",
-        "redirect_uri": Config.test.redirectURI
-      ].map { key, value in "\(key)=\(value)" }
-        .joined(separator: "&")
-        .data(using: .utf8)
-      expectedRequest.httpBody = [
         "code=\(code)",
         "client_id=\(Config.test.clientID)",
         "grant_type=authorization_code",
         "redirect_uri=\(Config.test.redirectURI)",
-      ].joined(separator: "&").data(using: .utf8)
+      ].joined(separator: "&").data(using: .utf8)!
 
       XCTAssertEqual($0, [expectedRequest])
     }
@@ -304,7 +296,7 @@ final class AuthTests: XCTestCase {
         "client_id=\(Config.test.clientID)",
         "grant_type=refresh_token",
         "refresh_token=refresh-token-1",
-      ].joined(separator: "&").data(using: .utf8)
+      ].joined(separator: "&").data(using: .utf8)!
 
       XCTAssertEqual($0, [expectedRequest])
     }
