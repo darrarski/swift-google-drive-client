@@ -202,20 +202,20 @@ struct ContentView: View {
             var data = try await client.getFileData(fileId: file.id)
             let dateText = Date().formatted(date: .complete, time: .complete)
             data.append("\nUpdated at \(dateText)".data(using: .utf8)!)
-            _ = try await client.updateFile(
+            _ = try await client.updateFileData(
               fileId: file.id,
               data: data,
               mimeType: "text/plain"
             )
           } catch {
-            log.error("UpdateFile failure", metadata: [
+            log.error("UpdateFileData failure", metadata: [
               "error": "\(error)",
               "localizedDescription": "\(error.localizedDescription)"
             ])
           }
         }
       } label: {
-        Text("Update File")
+        Text("Update File Data")
       }
 
       Button(role: .destructive) {

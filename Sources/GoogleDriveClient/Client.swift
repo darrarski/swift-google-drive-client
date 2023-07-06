@@ -7,7 +7,7 @@ public struct Client: Sendable {
     getFile: GetFile,
     getFileData: GetFileData,
     createFile: CreateFile,
-    updateFile: UpdateFile,
+    updateFileData: UpdateFileData,
     deleteFile: DeleteFile
   ) {
     self.auth = auth
@@ -15,7 +15,7 @@ public struct Client: Sendable {
     self.getFile = getFile
     self.getFileData = getFileData
     self.createFile = createFile
-    self.updateFile = updateFile
+    self.updateFileData = updateFileData
     self.deleteFile = deleteFile
   }
 
@@ -24,7 +24,7 @@ public struct Client: Sendable {
   public var getFile: GetFile
   public var getFileData: GetFileData
   public var createFile: CreateFile
-  public var updateFile: UpdateFile
+  public var updateFileData: UpdateFileData
   public var deleteFile: DeleteFile
 }
 
@@ -65,7 +65,7 @@ extension Client {
       httpClient: httpClient,
       uuidGenerator: uuidGenerator
     )
-    let updateFile = UpdateFile.live(
+    let updateFileData = UpdateFileData.live(
       auth: auth,
       keychain: keychain,
       httpClient: httpClient,
@@ -82,7 +82,7 @@ extension Client {
       getFile: getFile,
       getFileData: getFileData,
       createFile: createFile,
-      updateFile: updateFile,
+      updateFileData: updateFileData,
       deleteFile: deleteFile
     )
   }

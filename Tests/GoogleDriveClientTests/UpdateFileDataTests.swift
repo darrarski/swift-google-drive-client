@@ -1,8 +1,8 @@
 import XCTest
 @testable import GoogleDriveClient
 
-final class UpdateFileTests: XCTestCase {
-  func testUpdateFile() async throws {
+final class UpdateFileDataTests: XCTestCase {
+  func testUpdateFileData() async throws {
     let credentials = Credentials(
       accessToken: "access-token-1",
       expiresAt: Date(),
@@ -12,7 +12,7 @@ final class UpdateFileTests: XCTestCase {
     let httpRequests = ActorIsolated<[URLRequest]>([])
     let didRefreshToken = ActorIsolated(0)
     let uuid = UUID()
-    let updateFile = UpdateFile.live(
+    let updateFileData = UpdateFileData.live(
       auth: {
         var auth = Auth.unimplemented()
         auth.refreshToken = {
@@ -47,7 +47,7 @@ final class UpdateFileTests: XCTestCase {
       },
       uuidGenerator: .init { uuid }
     )
-    let params = UpdateFile.Params(
+    let params = UpdateFileData.Params(
       fileId: "file-id",
       data: "file data".data(using: .utf8)!,
       metadata: .init(
@@ -55,7 +55,7 @@ final class UpdateFileTests: XCTestCase {
       )
     )
 
-    let file = try await updateFile(params)
+    let file = try await updateFileData(params)
 
     await didRefreshToken.withValue {
       XCTAssertEqual($0, 1)
@@ -101,8 +101,8 @@ final class UpdateFileTests: XCTestCase {
     ))
   }
 
-  func testUpdateFileErrorResponse() async {
-    let updateFile = UpdateFile.live(
+  func testUpdateFileDataErrorResponse() async {
+    let updateFileData = UpdateFileData.live(
       auth: {
         var auth = Auth.unimplemented()
         auth.refreshToken = {}
@@ -135,7 +135,7 @@ final class UpdateFileTests: XCTestCase {
     )
 
     do {
-      _ = try await updateFile(
+      _ = try await updateFileData(
         fileId: "",
         data: Data(),
         mimeType: ""
@@ -143,7 +143,7 @@ final class UpdateFileTests: XCTestCase {
       XCTFail("Expected to throw, but didn't")
     } catch {
       XCTAssertEqual(
-        error as? UpdateFile.Error,
+        error as? UpdateFileData.Error,
         .response(
           statusCode: 500,
           data: "Error!!!".data(using: .utf8)!
@@ -153,8 +153,8 @@ final class UpdateFileTests: XCTestCase {
     }
   }
 
-  func testUpdateFileWhenNotAuthorized() async {
-    let updateFile = UpdateFile.live(
+  func testUpdateFileDataWhenNotAuthorized() async {
+    let updateFileData = UpdateFileData.live(
       auth: {
         var auth = Auth.unimplemented()
         auth.refreshToken = {}
@@ -170,7 +170,7 @@ final class UpdateFileTests: XCTestCase {
     )
 
     do {
-      _ = try await updateFile(
+      _ = try await updateFileData(
         fileId: "",
         data: Data(),
         mimeType: ""
@@ -178,7 +178,7 @@ final class UpdateFileTests: XCTestCase {
       XCTFail("Expected to throw, but didn't")
     } catch {
       XCTAssertEqual(
-        error as? UpdateFile.Error, .notAuthorized,
+        error as? UpdateFileData.Error, .notAuthorized,
         "Expected to throw .notAuthorized, got \(error)"
       )
     }
