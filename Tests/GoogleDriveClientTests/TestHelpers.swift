@@ -11,23 +11,6 @@ extension Config {
   )
 }
 
-extension Client {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> Client {
-    Client(
-      auth: .unimplemented(file: file, line: line),
-      listFiles: .unimplemented(file: file, line: line),
-      getFile: .unimplemented(file: file, line: line),
-      getFileData: .unimplemented(file: file, line: line),
-      createFile: .unimplemented(file: file, line: line),
-      updateFileData: .unimplemented(file: file, line: line),
-      deleteFile: .unimplemented(file: file, line: line)
-    )
-  }
-}
-
 extension Auth {
   static func unimplemented(
     file: StaticString = #filePath,
@@ -57,78 +40,6 @@ extension Auth {
         XCTFail("Unimplemented: \(Self.self).signOut", file: file, line: line)
       }
     )
-  }
-}
-
-extension ListFiles {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> ListFiles {
-    ListFiles { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
-  }
-}
-
-extension GetFile {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> GetFile {
-    GetFile { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
-  }
-}
-
-extension GetFileData {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> GetFileData {
-    GetFileData { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
-  }
-}
-
-extension CreateFile {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> CreateFile {
-    CreateFile { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
-  }
-}
-
-extension UpdateFileData {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> UpdateFileData {
-    UpdateFileData { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
-  }
-}
-
-extension DeleteFile {
-  static func unimplemented(
-    file: StaticString = #filePath,
-    line: UInt = #line
-  ) -> DeleteFile {
-    DeleteFile { _ in
-      XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
-      throw UnimplementedError()
-    }
   }
 }
 
