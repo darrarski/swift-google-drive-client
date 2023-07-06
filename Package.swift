@@ -17,6 +17,12 @@ let package = Package(
     .target(
       name: "GoogleDriveClient"
     ),
+    .testTarget(
+      name: "GoogleDriveClientTests",
+      dependencies: [
+        .target(name: "GoogleDriveClient"),
+      ]
+    ),
     .target(
       name: "GoogleDriveClientKeychain",
       dependencies: [
