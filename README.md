@@ -17,8 +17,6 @@ Basic Google Drive HTTP API client that does not depend on Google's SDK. No exte
 
 Use [Swift Package Manager](https://swift.org/package-manager/) to add the `GoogleDriveClient` library as a dependency to your project. 
 
-The package provides a basic implementation for storing vulnerable data securely in the keychain. If you want to use it, add the `GoogleDriveClientKeychain` library as well.
-
 Configure OAuth 2.0 Client ID using [Google Cloud Console](https://console.cloud.google.com/). Use `iOS` application type.
 
 Configure your application so that it can handle sign-in redirects. For an iOS app, you can do it by adding or modifying `CFBundleURLTypes` in `Info.plist`:
@@ -43,27 +41,23 @@ Create the client:
 
 ```swift
 import GoogleDriveClient
-import GoogleDriveClientKeychain
 
-let config = GoogleDriveClient.Config(
-  clientID: "1234-abcd.apps.googleusercontent.com",
-  authScope: "https://www.googleapis.com/auth/drive",
-  redirectURI: "com.googleusercontent.apps.1234-abcd://"
-)
 let client = GoogleDriveClient.Client.live(
-  config: config,
-  keychain: .live()
+  config: .init(
+    clientID: "1234-abcd.apps.googleusercontent.com",
+    authScope: "https://www.googleapis.com/auth/drive",
+    redirectURI: "com.googleusercontent.apps.1234-abcd://"
+  )
 )
 ```
 
 Make sure the `redirectURI` contains the scheme defined earlier.
 
-Optionally, you can provide your own, custom implementation of a keychain, instead of using the default one provided by the `GoogleDriveClientKeychain` library.
+The package provides a basic implementation for storing vulnerable data securely in the keychain. Optionally, you can provide your own, custom implementation of a keychain, instead of using the default one.
 
 ```swift
 import GoogleDriveClient
 
-let config = GoogleDriveClient.Config(...)
 let keychain = GoogleDriveClient.Keychain(
   loadCredentials: { () async -> GoogleDriveClient.Credentials? in
     // load from secure storage and return
@@ -76,7 +70,7 @@ let keychain = GoogleDriveClient.Keychain(
   }
 )
 let client = GoogleDriveClient.Client.live(
-  config: config,
+  config: .init(...),
   keychain: keychain
 )
 ``` 
@@ -98,8 +92,7 @@ The example app uses [Dependencies](https://github.com/pointfreeco/swift-depende
 ```
 GoogleDriveClient (Xcode Workspace)
  ├─ swift-google-drive-client (Swift Package)
- |   ├─ GoogleDriveClient (Library)
- |   └─ GoogleDriveClientKeychain (Library)
+ |   └─ GoogleDriveClient (Library)
  └─ Example (Xcode Project)
      └─ GoogleDriveClientExampleApp (iOS Application)
 ```
