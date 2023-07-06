@@ -1,5 +1,4 @@
 // swift-tools-version: 5.8
-// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
@@ -11,7 +10,6 @@ let package = Package(
   ],
   products: [
     .library(name: "GoogleDriveClient", targets: ["GoogleDriveClient"]),
-    .library(name: "GoogleDriveClientKeychain", targets: ["GoogleDriveClientKeychain"]),
   ],
   targets: [
     .target(
@@ -19,12 +17,6 @@ let package = Package(
     ),
     .testTarget(
       name: "GoogleDriveClientTests",
-      dependencies: [
-        .target(name: "GoogleDriveClient"),
-      ]
-    ),
-    .target(
-      name: "GoogleDriveClientKeychain",
       dependencies: [
         .target(name: "GoogleDriveClient"),
       ]

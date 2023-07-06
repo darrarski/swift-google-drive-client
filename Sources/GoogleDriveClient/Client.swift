@@ -31,7 +31,7 @@ public struct Client: Sendable {
 extension Client {
   public static func live(
     config: Config,
-    keychain: Keychain,
+    keychain: Keychain = .live(),
     httpClient: HTTPClient = .urlSession(),
     openURL: OpenURL = .live,
     dateGenerator: DateGenerator = .live,
