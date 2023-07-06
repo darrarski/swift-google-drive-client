@@ -1,7 +1,6 @@
 import Dependencies
 import Foundation
 import GoogleDriveClient
-import GoogleDriveClientKeychain
 
 extension GoogleDriveClient.Client: DependencyKey {
   public static let liveValue = Client.live(
@@ -9,8 +8,7 @@ extension GoogleDriveClient.Client: DependencyKey {
       clientID: "437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v.apps.googleusercontent.com",
       authScope: "https://www.googleapis.com/auth/drive.appdata",
       redirectURI: "com.googleusercontent.apps.437442953929-vk9agcivr59cldl92jqaiqdvlncpuh2v://"
-    ),
-    keychain: .live()
+    )
   )
 
   public static let previewValue: Client = {

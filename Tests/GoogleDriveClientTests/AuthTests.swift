@@ -163,18 +163,7 @@ final class AuthTests: XCTestCase {
     let url = URL(string: "\(Config.test.redirectURI)test?code=1234")!
     let auth = Auth.live(
       config: .test,
-      keychain: {
-        var keychain = Keychain.unimplemented()
-        keychain.loadCredentials = {
-          Credentials(
-            accessToken: "",
-            expiresAt: Date(),
-            refreshToken: "",
-            tokenType: ""
-          )
-        }
-        return keychain
-      }(),
+      keychain: .unimplemented(),
       dateGenerator: .init { date },
       openURL: .unimplemented(),
       httpClient: .init { request in
