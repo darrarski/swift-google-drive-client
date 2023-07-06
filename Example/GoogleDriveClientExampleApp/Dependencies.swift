@@ -74,9 +74,9 @@ extension GoogleDriveClient.Client: DependencyKey {
         await files.withValue { $0.insert(file, at: $0.startIndex) }
         return file
       },
-      updateFile: .init { params in
+      updateFileData: .init { params in
         guard var file = await files.value.first(where: { $0.id == params.fileId })
-        else { throw UpdateFile.Error.response(statusCode: 404, data: Data()) }
+        else { throw UpdateFileData.Error.response(statusCode: 404, data: Data()) }
         file.modifiedTime = Date()
         await files.withValue { [file] in $0 = $0.map { $0.id == file.id ? file : $0 } }
         return file

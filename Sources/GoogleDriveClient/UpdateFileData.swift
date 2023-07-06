@@ -1,6 +1,6 @@
 import Foundation
 
-public struct UpdateFile: Sendable {
+public struct UpdateFileData: Sendable {
   public struct Params: Sendable, Equatable {
     public struct Metadata: Sendable, Equatable, Encodable {
       public init(
@@ -59,14 +59,14 @@ public struct UpdateFile: Sendable {
   }
 }
 
-extension UpdateFile {
+extension UpdateFileData {
   public static func live(
     auth: Auth,
     keychain: Keychain,
     httpClient: HTTPClient,
     uuidGenerator uuid: UUIDGenerator
-  ) -> UpdateFile {
-    UpdateFile { params in
+  ) -> UpdateFileData {
+    UpdateFileData { params in
       try await auth.refreshToken()
 
       guard let credentials = await keychain.loadCredentials() else {

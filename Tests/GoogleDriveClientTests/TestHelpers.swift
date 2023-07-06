@@ -22,7 +22,7 @@ extension Client {
       getFile: .unimplemented(file: file, line: line),
       getFileData: .unimplemented(file: file, line: line),
       createFile: .unimplemented(file: file, line: line),
-      updateFile: .unimplemented(file: file, line: line),
+      updateFileData: .unimplemented(file: file, line: line),
       deleteFile: .unimplemented(file: file, line: line)
     )
   }
@@ -108,12 +108,12 @@ extension CreateFile {
   }
 }
 
-extension UpdateFile {
+extension UpdateFileData {
   static func unimplemented(
     file: StaticString = #filePath,
     line: UInt = #line
-  ) -> UpdateFile {
-    UpdateFile { _ in
+  ) -> UpdateFileData {
+    UpdateFileData { _ in
       XCTFail("Unimplemented: \(Self.self)", file: file, line: line)
       throw UnimplementedError()
     }
