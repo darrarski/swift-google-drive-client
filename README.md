@@ -3,7 +3,7 @@
 ![Swift v5.8](https://img.shields.io/badge/swift-v5.8-orange.svg)
 ![platforms iOS, macOS](https://img.shields.io/badge/platforms-iOS,_macOS-blue.svg)
 
-Basic Google Drive HTTP API client that does not depend on Google's SDK.
+Basic Google Drive HTTP API client that does not depend on Google's SDK. No external dependencies.
 
 - Authorize access
 - List files
@@ -109,8 +109,8 @@ GoogleDriveClient (Xcode Workspace)
 - Use Xcode (version ≥ 14.3.1).
 - Clone the repository or create a fork & clone it.
 - Open `GoogleDriveClient.xcworkspace` in Xcode.
-- Use the `GoogleDriveClient` scheme for building the library.
-- If you want to contribute, create a pull request containing your changes or bug fixes.
+- Use the `GoogleDriveClient` scheme for building the library and running unit tests.
+- If you want to contribute, create a pull request containing your changes or bug fixes. Make sure to include tests for new/updated code.
 
 ## ☕️ Do you like the project?
 
