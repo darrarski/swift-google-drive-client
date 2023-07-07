@@ -46,7 +46,9 @@ final class AuthTests: XCTestCase {
       httpClient: .unimplemented()
     )
 
-    try await auth.handleRedirect(URL(string: "https://darrarski.pl")!)
+    let didHandle = try await auth.handleRedirect(URL(string: "https://darrarski.pl")!)
+
+    XCTAssertFalse(didHandle)
   }
 
   func testHandleRedirectWithError() async throws {
@@ -60,7 +62,7 @@ final class AuthTests: XCTestCase {
     )
 
     do {
-      try await auth.handleRedirect(url)
+      _ = try await auth.handleRedirect(url)
       XCTFail("Expected to throw, but didn't")
     } catch {
       XCTAssertEqual(
@@ -81,7 +83,7 @@ final class AuthTests: XCTestCase {
     )
 
     do {
-      try await auth.handleRedirect(url)
+      _ = try await auth.handleRedirect(url)
       XCTFail("Expected to throw, but didn't")
     } catch {
       XCTAssertEqual(
@@ -128,7 +130,7 @@ final class AuthTests: XCTestCase {
       }
     )
 
-    try await auth.handleRedirect(url)
+    let didHandle = try await auth.handleRedirect(url)
 
     await httpRequests.withValue {
       let url = URL(string: "https://www.googleapis.com/oauth2/v4/token")!
@@ -157,6 +159,7 @@ final class AuthTests: XCTestCase {
     }
     let isSignedIn = await auth.isSignedIn()
     XCTAssertTrue(isSignedIn)
+    XCTAssertTrue(didHandle)
   }
 
   func testHandleRedirectErrorResponse() async {
@@ -181,7 +184,7 @@ final class AuthTests: XCTestCase {
     )
 
     do {
-      try await auth.handleRedirect(url)
+      _ = try await auth.handleRedirect(url)
       XCTFail("Expected to throw, but didn't")
     } catch {
       XCTAssertEqual(
