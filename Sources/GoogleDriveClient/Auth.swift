@@ -126,13 +126,11 @@ extension Auth {
             forHTTPHeaderField: "Content-Type"
           )
           request.httpBody = [
-            "code": code,
-            "client_id": config.clientID,
-            "grant_type": "authorization_code",
-            "redirect_uri": config.redirectURI
-          ].map { key, value in "\(key)=\(value)" }
-            .joined(separator: "&")
-            .data(using: .utf8)
+            "code=\(code)",
+            "client_id=\(config.clientID)",
+            "grant_type=authorization_code",
+            "redirect_uri=\(config.redirectURI)",
+          ].joined(separator: "&").data(using: .utf8)
 
           return request
         }()
@@ -184,12 +182,10 @@ extension Auth {
             forHTTPHeaderField: "Content-Type"
           )
           request.httpBody = [
-            "client_id": config.clientID,
-            "grant_type": "refresh_token",
-            "refresh_token": credentials.refreshToken
-          ].map { key, value in "\(key)=\(value)" }
-            .joined(separator: "&")
-            .data(using: .utf8)
+            "client_id=\(config.clientID)",
+            "grant_type=refresh_token",
+            "refresh_token=\(credentials.refreshToken)",
+          ].joined(separator: "&").data(using: .utf8)
 
           return request
         }()
