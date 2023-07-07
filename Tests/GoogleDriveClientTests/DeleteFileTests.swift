@@ -55,6 +55,7 @@ final class DeleteFileTests: XCTestCase {
         "Authorization": "\(credentials.tokenType) \(credentials.accessToken)"
       ]
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertNil($0.first?.httpBody)
     }
   }
 

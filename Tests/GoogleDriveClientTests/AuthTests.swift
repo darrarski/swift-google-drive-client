@@ -145,6 +145,7 @@ final class AuthTests: XCTestCase {
       ].joined(separator: "&").data(using: .utf8)!
 
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertEqual($0.first?.httpBody, expectedRequest.httpBody!)
     }
     await credentials.withValue {
       XCTAssertEqual($0, Credentials(
@@ -288,6 +289,7 @@ final class AuthTests: XCTestCase {
       ].joined(separator: "&").data(using: .utf8)!
 
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertEqual($0.first?.httpBody, expectedRequest.httpBody!)
     }
     await credentials.withValue {
       XCTAssertEqual($0, Credentials(
