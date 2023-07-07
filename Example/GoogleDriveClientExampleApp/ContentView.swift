@@ -25,7 +25,7 @@ struct ContentView: View {
     .onOpenURL { url in
       Task<Void, Never> {
         do {
-          try await client.auth.handleRedirect(url)
+          _ = try await client.auth.handleRedirect(url)
         } catch {
           log.error("Auth.HandleRedirect failure", metadata: [
             "error": "\(error)",

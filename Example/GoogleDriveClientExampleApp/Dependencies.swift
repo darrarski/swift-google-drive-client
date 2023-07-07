@@ -42,7 +42,7 @@ extension GoogleDriveClient.Client: DependencyKey {
         isSignedIn: { await isSignedIn.value },
         isSignedInStream: { isSignedIn.eraseToStream() },
         signIn: { await isSignedIn.setValue(true) },
-        handleRedirect: { _ in },
+        handleRedirect: { _ in false },
         refreshToken: {},
         signOut: { await isSignedIn.setValue(false) }
       ),
