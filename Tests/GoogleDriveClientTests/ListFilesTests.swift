@@ -93,6 +93,7 @@ final class ListFilesTests: XCTestCase {
       ]
 
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertNil($0.first?.httpBody)
     }
     XCTAssertEqual(filesList, FilesList(
       nextPageToken: "next-page-token",

@@ -83,6 +83,7 @@ final class UpdateFileDataTests: XCTestCase {
       ].joined(separator: "\r\n").data(using: .utf8)!
 
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertEqual($0.first?.httpBody, expectedRequest.httpBody!)
     }
     XCTAssertEqual(file, File(
       id: "1234",

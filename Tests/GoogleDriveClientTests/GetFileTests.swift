@@ -60,6 +60,7 @@ final class GetFileTests: XCTestCase {
         "Authorization": "\(credentials.tokenType) \(credentials.accessToken)"
       ]
       XCTAssertEqual($0, [expectedRequest])
+      XCTAssertNil($0.first?.httpBody)
     }
     XCTAssertEqual(file, File(
       id: "1234",
