@@ -318,6 +318,7 @@ final class AuthTests: XCTestCase {
         var keychain = Keychain.unimplemented()
         keychain.loadCredentials = { await credentials.value }
         keychain.saveCredentials = { await credentials.setValue($0) }
+        keychain.deleteCredentials = { await credentials.setValue(nil) }
         return keychain
       }(),
       dateGenerator: .init { date },
@@ -347,6 +348,9 @@ final class AuthTests: XCTestCase {
         ),
         "Expected to throw response error, got \(error)"
       )
+    }
+    await credentials.withValue {
+      XCTAssertNil($0)
     }
   }
 

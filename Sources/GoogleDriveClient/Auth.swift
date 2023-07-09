@@ -196,6 +196,7 @@ extension Auth {
         let statusCode = (response as? HTTPURLResponse)?.statusCode
 
         guard let statusCode, (200..<300).contains(statusCode) else {
+          await saveCredentials(nil)
           throw Error.response(statusCode: statusCode, data: responseData)
         }
 
