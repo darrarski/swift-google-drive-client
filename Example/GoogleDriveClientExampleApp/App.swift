@@ -15,7 +15,7 @@ struct App: SwiftUI.App {
     WindowGroup {
       TabView {
         NavigationStack {
-          ContentView()
+          ExampleView()
         }
         .tabItem {
           Label("Example", systemImage: "play")

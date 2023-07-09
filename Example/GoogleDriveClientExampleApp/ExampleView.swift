@@ -3,7 +3,7 @@ import GoogleDriveClient
 import Logging
 import SwiftUI
 
-struct ContentView: View {
+struct ExampleView: View {
   @Dependency(\.googleDriveClient) var client
   let log = Logger(label: Bundle.main.bundleIdentifier!)
   @State var isSignedIn = false
@@ -240,10 +240,10 @@ struct ContentView: View {
 }
 
 #if DEBUG
-struct ContentView_Previews: PreviewProvider {
+struct ExampleView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      ContentView()
+      ExampleView()
     }
   }
 }
