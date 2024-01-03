@@ -94,6 +94,7 @@ extension CreateFile {
         ]
 
         let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
         let metadataData = try encoder.encode(params.metadata)
 
         var formData = Data()

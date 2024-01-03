@@ -28,6 +28,7 @@ extension GoogleDriveClient.Keychain {
     let keychain = _Keychain(service: service)
     let credentialsKey = "credentials"
     let encoder = JSONEncoder()
+    encoder.outputFormatting = .sortedKeys
     let decoder = JSONDecoder()
 
     return GoogleDriveClient.Keychain(
