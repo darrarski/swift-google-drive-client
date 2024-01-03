@@ -29,7 +29,7 @@ let package = Package(
 //  target.swiftSettings?.append(
 //    .unsafeFlags(
 //      [
-//        "-Xfrontend", "-strict-concurrency=targeted",
+//        "-Xfrontend", "-strict-concurrency=complete",
 //        "-Xfrontend", "-enable-actor-data-race-checks",
 //        "-Xfrontend", "-debug-time-function-bodies",
 //        "-Xfrontend", "-debug-time-expression-type-checking",

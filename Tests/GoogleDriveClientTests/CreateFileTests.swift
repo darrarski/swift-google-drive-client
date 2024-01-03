@@ -75,7 +75,7 @@ final class CreateFileTests: XCTestCase {
         "--\(uuid.uuidString)",
         "Content-Type: application/json; charset=UTF-8",
         "",
-        #"{"mimeType":"text\/plain","spaces":"cosmos","name":"test.txt","parents":["parent1","parent2"]}"#,
+        #"{"mimeType":"text\/plain","name":"test.txt","parents":["parent1","parent2"],"spaces":"cosmos"}"#,
         "--\(uuid.uuidString)",
         "Content-Type: text/plain",
         "Content-Transfer-Encoding: base64",

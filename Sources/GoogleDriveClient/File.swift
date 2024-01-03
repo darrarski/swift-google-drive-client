@@ -23,7 +23,7 @@ public struct File: Sendable, Equatable, Identifiable, Codable {
 }
 
 extension File {
-  static var apiFields: String = [
+  static let apiFields: String = [
     "id",
     "mimeType",
     "name",
